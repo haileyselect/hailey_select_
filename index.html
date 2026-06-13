@@ -2,7 +2,10 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>ʜᴀɪʟᴇʏ 海莉代購/選品</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap');
@@ -1039,6 +1042,32 @@ img{max-width:100%;display:block}
           <input class="form-input" id="adminBankAcct" placeholder="銀行帳號">
         </div>
         <button class="admin-save-btn" onclick="savePayment()">儲存匯款資訊</button>
+        <div class="divider"></div>
+
+        <!-- DATA EXPORT / IMPORT -->
+        <div class="admin-form-title" style="margin-top:16px">📤 資料備份 &amp; 跨裝置同步</div>
+        <div style="background:#f0f7ff;border:1px solid #c5ddf9;border-radius:var(--r-sm);padding:14px;margin-bottom:14px;font-size:12px;line-height:1.9;color:#2a5080">
+          💡 <strong>為什麼手機看不到商品圖片？</strong><br>
+          商品資料存在「瀏覽器 localStorage」，每個裝置各自獨立。電腦後台新增的商品，手機不會自動同步。<br>
+          請用以下步驟同步：電腦「匯出資料」→ 複製代碼 → 手機「匯入資料」→ 貼上 → 確認。
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="admin-save-btn" onclick="exportAllData()" style="background:#2a5080">📤 匯出全部資料</button>
+          <button class="btn-sm btn-edit" style="padding:10px 16px;font-size:13px" onclick="showImportBox()">📥 匯入資料</button>
+        </div>
+        <div id="exportBox" style="display:none;margin-bottom:12px">
+          <label class="form-label">複製以下全部內容，在手機端貼入匯入框</label>
+          <textarea id="exportData" class="form-input" rows="4" readonly style="font-size:11px;font-family:monospace;word-break:break-all"></textarea>
+          <button class="btn-sm btn-edit" style="margin-top:6px;padding:8px 16px" onclick="copyExportData()">📋 複製到剪貼簿</button>
+          <span id="copyDone" style="font-size:12px;color:var(--success);margin-left:8px;display:none">已複製 ✅</span>
+        </div>
+        <div id="importBox" style="display:none;margin-bottom:12px">
+          <label class="form-label">貼上從電腦匯出的資料代碼</label>
+          <textarea id="importData" class="form-input" rows="4" style="font-size:11px;font-family:monospace" placeholder="貼上匯出的代碼…"></textarea>
+          <button class="admin-save-btn" onclick="importAllData()" style="margin-top:6px">確認匯入</button>
+          <div style="font-size:11px;color:var(--danger);margin-top:4px">⚠️ 匯入會覆蓋此裝置的所有商品、分類等資料</div>
+        </div>
+
         <div class="divider"></div>
         <div class="admin-form-title" style="margin-top:16px">📊 Google 試算表同步設定</div>
         <div style="background:#f0f7ff;border:1px solid #c5ddf9;border-radius:var(--r-sm);padding:14px;margin-bottom:14px;font-size:12px;line-height:1.8;color:#2a5080">
@@ -2868,6 +2897,85 @@ function savePayment(){
   LS.set('hailey_payment',paymentInfo);
   document.getElementById('paymentBankInfo').innerHTML=`銀行代號：${paymentInfo.bank}<br>帳號：${paymentInfo.acct}`;
   showToast('匯款資訊已儲存 ✅');
+}
+
+// ═══════════════════════════
+//  DATA EXPORT / IMPORT
+// ═══════════════════════════
+function exportAllData(){
+  const exportObj={
+    v:2, // version
+    products,
+    categories,
+    carouselData,
+    aboutData,
+    paymentInfo,
+    coupons,
+    // Note: users/orders excluded for privacy
+  };
+  const json=JSON.stringify(exportObj);
+  const encoded=btoa(unescape(encodeURIComponent(json)));
+  document.getElementById('exportData').value=encoded;
+  document.getElementById('exportBox').style.display='block';
+  document.getElementById('importBox').style.display='none';
+  document.getElementById('copyDone').style.display='none';
+}
+
+function copyExportData(){
+  const ta=document.getElementById('exportData');
+  ta.select();
+  ta.setSelectionRange(0,99999);
+  try{
+    navigator.clipboard.writeText(ta.value).then(()=>{
+      document.getElementById('copyDone').style.display='inline';
+      setTimeout(()=>document.getElementById('copyDone').style.display='none',3000);
+    });
+  } catch(e){
+    document.execCommand('copy');
+    document.getElementById('copyDone').style.display='inline';
+    setTimeout(()=>document.getElementById('copyDone').style.display='none',3000);
+  }
+}
+
+function showImportBox(){
+  document.getElementById('importBox').style.display='block';
+  document.getElementById('exportBox').style.display='none';
+}
+
+function importAllData(){
+  const encoded=document.getElementById('importData').value.trim();
+  if(!encoded){showToast('請貼上匯出代碼');return}
+  try{
+    const json=decodeURIComponent(escape(atob(encoded)));
+    const obj=JSON.parse(json);
+    if(!obj.products||!obj.categories){showToast('❌ 資料格式錯誤，請重新匯出');return}
+    // Apply imported data
+    products=obj.products;
+    categories=obj.categories;
+    carouselData=obj.carouselData||carouselData;
+    aboutData=obj.aboutData||aboutData;
+    paymentInfo=obj.paymentInfo||paymentInfo;
+    coupons=obj.coupons||coupons;
+    // Save to localStorage
+    LS.set('hailey_products',products);
+    LS.set('hailey_cats',categories);
+    LS.set('hailey_carousel',carouselData);
+    LS.set('hailey_about',aboutData);
+    LS.set('hailey_payment',paymentInfo);
+    LS.set('hailey_coupons',coupons);
+    // Refresh UI
+    buildCarousel();
+    buildCatBar();
+    buildCatSelect();
+    renderProducts();
+    renderAboutPage();
+    document.getElementById('paymentBankInfo').innerHTML=`銀行代號：${paymentInfo.bank}<br>帳號：${paymentInfo.acct}`;
+    document.getElementById('importBox').style.display='none';
+    document.getElementById('importData').value='';
+    showToast(`匯入成功！已載入 ${products.length} 件商品 ✅`);
+  } catch(e){
+    showToast('❌ 匯入失敗：'+e.message);
+  }
 }
 
 /* MEMBERS ADMIN */
