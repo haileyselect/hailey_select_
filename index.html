@@ -417,56 +417,8 @@ img{max-width:100%;display:block}
 
 <!-- ═══ ABOUT PAGE ═══ -->
 <div class="page" id="page-about">
-  <div class="about-wrap">
-    <div class="about-logo">
-      <img src="https://i.ibb.co/YFZbDhzh/HAILEY-Logo-1.jpg" alt="HAILEY Logo"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block'"
-           style="height:100px;margin:0 auto 12px">
-      <div style="display:none;font-family:'Playfair Display',serif;font-size:32px;color:var(--accent-dark);text-align:center;margin-bottom:12px">ʜᴀɪʟᴇʏ</div>
-      <div class="about-title">ʜᴀɪʟᴇʏ 海莉代購/選品</div>
-      <div class="about-subtitle">嚴選好物 · 用心把關</div>
-    </div>
-    <div class="about-card">
-      <div class="about-text">
-        哈囉👋🏻 我是 <strong>ʜᴀɪʟᴇʏ 海莉代購/選品</strong> 的闆娘 Hailey<br><br>
-        嚴選美妝、保養、香水、服飾、零食等各式好物✨<br>
-        不定期飛各地代購✈️🌍<br>
-        代購商品都是 Hailey 親自挑選，用心把關品質❣️<br>
-        選品也是 Hailey 親自實測推薦的愛用好物❣️
-      </div>
-    </div>
-    <div class="about-card">
-      <div class="about-card-title">📌 下單方式</div>
-      <div class="about-text">請直接在此網頁下單，或私訊官方 LINE 由小幫手協助下單。</div>
-    </div>
-    <div class="about-card">
-      <div class="about-card-title">📌 付款方式 &amp; 訂單成立</div>
-      <div class="about-text">僅提供匯款，結帳頁面或私訊官方帳號下單後會提供銀行帳號，完成匯款後，麻煩提供帳號後五碼或轉帳截圖畫面。</div>
-      <div class="about-warning">
-        ⚠️ 店到店下單會先收商品全額款項，面交則會收商品一半款項。<br>
-        ⚠️ 代購商品訂單成立後禁止更改或取消商品。<br>
-        ⚠️ 匯款完成訂單才正式成立，24小時內如欲更改請洽詢官方LINE（超過24小時不可更改訂單）。棄單一律以黑名單處理❌
-      </div>
-    </div>
-    <div class="about-card">
-      <div class="about-card-title">📌 寄送方式及運費</div>
-      <div class="about-text">目前僅提供面交（限桃園區）、7-11 店到店、全家店到店，店到店運費皆為 <strong>60 元</strong>，面交不收取運費。</div>
-    </div>
-    <div class="about-card">
-      <div class="about-card-title">📌 出貨時間</div>
-      <div class="about-text">
-        代購商品：Hailey 回國後 5 天內會出貨。<br>
-        現貨 7 天內出貨，預購 15–30 天出貨。
-      </div>
-    </div>
-    <div class="about-card">
-      <div class="about-card-title">📌 退換貨機制</div>
-      <div class="about-text">
-        包裹取件後 3 天內提供：破碎照片、開箱影片、包裹單號<br>
-        商品有重大瑕疵、破瓶、外包裝嚴重破損，我們將提供退換貨。<br><br>
-        運送過程外盒難免會有凹痕，均會加強包裝，包裹都會包好包滿請各位放心👏🏻
-      </div>
-    </div>
+  <div class="about-wrap" id="aboutPageContent">
+    <!-- Rendered by renderAboutPage() -->
   </div>
 </div>
 
@@ -581,6 +533,17 @@ img{max-width:100%;display:block}
           <label class="form-label">取貨門市資訊</label>
           <input class="form-input" id="checkoutStore" placeholder="請填寫門市名稱（地址選填）">
         </div>
+        <!-- Face shipping LINE hint -->
+        <div id="faceShippingHint" style="display:block;margin-bottom:14px">
+          <div style="background:#e8f9ee;border:1px solid #b2dfcc;border-radius:var(--r-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="font-size:12px;color:#2d6a4f;flex:1;min-width:160px">📍 面交地點請加入官方 LINE 詢問，我們會告知面交地點與時間</div>
+            <a href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank"
+               style="display:inline-flex;align-items:center;gap:6px;background:#06C755;color:#fff;padding:7px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.16 1.72 5.95 4.34 7.67L6 22l3.38-1.77C10.2 20.72 11.08 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+              詢問面交地點
+            </a>
+          </div>
+        </div>
         <div class="checkout-summary">
           <div class="summary-row"><span>商品小計</span><span id="summarySubtotal">$0</span></div>
           <div class="summary-row"><span>運費</span><span id="summaryShipping">$0</span></div>
@@ -600,6 +563,19 @@ img{max-width:100%;display:block}
           <input class="form-input" id="checkoutBank" placeholder="例：中信、國泰、台新...">
           <label class="payment-input-label">帳號後五碼</label>
           <input class="form-input" id="checkoutCode" placeholder="請填入帳號後五碼" maxlength="5">
+        </div>
+        <!-- LINE add reminder -->
+        <div style="background:linear-gradient(135deg,#e8f9ee,#d4f5e1);border:1.5px solid #06C755;border-radius:var(--r-sm);padding:14px 16px;margin:14px 0">
+          <div style="font-size:13px;color:#1a4731;line-height:1.7;margin-bottom:10px">
+            📱 <strong>請加入官方 LINE 並發送您的姓名</strong>，以利後續訂單作業。<br>
+            <span style="font-size:12px;color:#2d6a4f">出貨後系統也會透過 LINE 通知您出貨進度 🚚</span>
+          </div>
+          <a href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank"
+             style="display:inline-flex;align-items:center;gap:8px;background:#06C755;color:#fff;padding:10px 20px;border-radius:var(--r-sm);font-size:13px;font-weight:700;text-decoration:none;transition:all .2s"
+             onmouseover="this.style.background='#05a849'" onmouseout="this.style.background='#06C755'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.16 1.72 5.95 4.34 7.67L6 22l3.38-1.77C10.2 20.72 11.08 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+            加入官方 LINE
+          </a>
         </div>
         <!-- Coupon selector -->
         <div id="couponSelectorWrap" style="display:none;margin-bottom:12px">
@@ -720,7 +696,8 @@ img{max-width:100%;display:block}
         <button class="admin-tab-btn active" onclick="adminTab('Products','products')">商品</button>
         <button class="admin-tab-btn" onclick="adminTab('Carousel','carousel')">輪播圖</button>
         <button class="admin-tab-btn" onclick="adminTab('Categories','categories')">分類</button>
-        <button class="admin-tab-btn" onclick="adminTab('Payment','payment')">匯款資訊</button>
+        <button class="admin-tab-btn" onclick="adminTab('About','about')">介紹頁</button>
+        <button class="admin-tab-btn" onclick="adminTab('Payment','payment')">設定</button>
         <button class="admin-tab-btn" onclick="adminTab('Members','members')">會員列表</button>
         <button class="admin-tab-btn" onclick="adminTab('Orders','orders')">訂單列表</button>
         <button class="admin-tab-btn" onclick="adminTab('Coupons','coupons')">優惠券</button>
@@ -873,7 +850,30 @@ img{max-width:100%;display:block}
         </div>
       </div>
 
-      <!-- Payment -->
+      <!-- About Page Editor -->
+      <div class="admin-section" id="adminAbout">
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">編輯介紹頁所有文字內容，儲存後立即更新。</div>
+        <div class="form-group">
+          <label class="form-label">主標題</label>
+          <input class="form-input" id="aTitle" placeholder="ʜᴀɪʟᴇʏ 海莉代購/選品">
+        </div>
+        <div class="form-group">
+          <label class="form-label">副標題</label>
+          <input class="form-input" id="aSubtitle" placeholder="嚴選好物 · 用心把關">
+        </div>
+        <div class="form-group">
+          <label class="form-label">自我介紹內文（支援換行，用 \n 或直接按 Enter）</label>
+          <textarea class="form-input" id="aIntro" rows="5" placeholder="哈囉👋🏻 我是..."></textarea>
+        </div>
+        <div style="font-weight:700;font-size:13px;margin:16px 0 10px;color:var(--accent-dark)">📌 各說明區塊</div>
+        <div id="aBlocksList"></div>
+        <button class="btn-add" onclick="addAboutBlock()" style="margin-bottom:16px">＋ 新增說明區塊</button>
+        <div style="display:flex;gap:8px">
+          <button class="admin-save-btn" onclick="saveAboutPage()">儲存介紹頁</button>
+        </div>
+      </div>
+
+      <!-- Payment / Settings -->
       <div class="admin-section" id="adminPayment">
         <div class="admin-form-title">🖼️ Logo 設定</div>
         <div class="form-group">
@@ -903,42 +903,92 @@ img{max-width:100%;display:block}
           3. 複製部署 URL 貼入下方欄位<br>
           <button onclick="showSheetsCode()" style="margin-top:8px;padding:4px 12px;border:1px solid #1a6fc4;background:#fff;color:#1a6fc4;border-radius:4px;cursor:pointer;font-size:11px">查看 Apps Script 程式碼</button>
         </div>
-        <div id="sheetsCodeBlock" style="display:none;background:#1e1e2e;color:#cdd6f4;padding:14px;border-radius:var(--r-sm);font-size:11px;font-family:monospace;white-space:pre;overflow-x:auto;margin-bottom:14px;line-height:1.6">function doPost(e){
-  var ss=SpreadsheetApp.openById('YOUR_SPREADSHEET_ID');
-  var data=JSON.parse(e.postData.contents);
-  var type=data.type||'order';
+        <div id="sheetsCodeBlock" style="display:none;background:#1e1e2e;color:#cdd6f4;padding:14px;border-radius:var(--r-sm);font-size:11px;font-family:monospace;white-space:pre;overflow-x:auto;margin-bottom:14px;line-height:1.6">// ★ 複製以下全部內容貼入 Apps Script，並將 YOUR_SPREADSHEET_ID 換成試算表ID ★
 
-  if(type==='order'){
-    var s=ss.getSheetByName('訂單')||ss.insertSheet('訂單');
-    if(s.getLastRow()===0) s.appendRow(['訂單ID','日期','姓名','付款銀行','後五碼','寄送','門市','品項','小計','運費','折扣','總計','Email','狀態']);
-    var items=data.items.map(function(i){return i.name+(i.spec?'('+i.spec+')':'')+'×'+i.qty+'=$'+i.unitPrice;}).join('；');
-    s.appendRow([data.id,data.date,data.name,data.bank||'',data.code||'',data.shipping,data.store||'',items,data.subtotal,data.shippingFee,data.couponDiscount||0,data.total,data.email,data.status]);
+function processData(data) {
+  var ss = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID');
+  var type = data.type || 'order';
+
+  if (type === 'ping') return {ok: true, message: 'connected'};
+
+  if (type === 'order') {
+    var s = ss.getSheetByName('訂單') || ss.insertSheet('訂單');
+    if (s.getLastRow() === 0)
+      s.appendRow(['訂單ID','日期','姓名','付款銀行','後五碼','寄送','門市','品項','小計','運費','折扣','總計','Email','狀態']);
+    var items = (data.items||[]).map(function(i){
+      return i.name+(i.spec?'('+i.spec+')':'')+'×'+i.qty+'=$'+i.unitPrice;
+    }).join('；');
+    // Check if order already exists (avoid duplicates)
+    var finder = s.createTextFinder(data.id).findNext();
+    if (!finder) {
+      s.appendRow([data.id,data.date,data.name,data.bank||'',data.code||'',
+        data.shipping,data.store||'',items,data.subtotal,data.shippingFee,
+        data.couponDiscount||0,data.total,data.email,data.status]);
+    }
   }
 
-  if(type==='product'){
-    var sp=ss.getSheetByName('商品')||ss.insertSheet('商品');
-    if(sp.getLastRow()===0) sp.appendRow(['名稱','分類','子分類','價格','最高價','規格','顏色','尺寸','標籤','描述']);
-    sp.appendRow([data.name,data.cat,data.subCat,data.price,data.priceMax,data.specs,data.colors||'',data.sizes||'',data.badge,data.desc]);
+  if (type === 'product') {
+    var sp = ss.getSheetByName('商品') || ss.insertSheet('商品');
+    if (sp.getLastRow() === 0)
+      sp.appendRow(['名稱','分類','子分類','價格','最高價','規格','顏色','尺寸','標籤','描述']);
+    var fp = sp.createTextFinder(data.name).findNext();
+    if (fp) {
+      sp.getRange(fp.getRow(), 1, 1, 10).setValues([[data.name,data.cat,data.subCat,
+        data.price,data.priceMax,data.specs,data.colors||'',data.sizes||'',data.badge,data.desc]]);
+    } else {
+      sp.appendRow([data.name,data.cat,data.subCat,data.price,data.priceMax,
+        data.specs,data.colors||'',data.sizes||'',data.badge,data.desc]);
+    }
   }
 
-  if(type==='member'){
-    var sm=ss.getSheetByName('會員')||ss.insertSheet('會員');
-    if(sm.getLastRow()===0) sm.appendRow(['Email','姓名','電話','生日','性別']);
-    var row=sm.createTextFinder(data.email).findNext();
-    if(row) row.setValue(data.name);
-    else sm.appendRow([data.email,data.name,data.phone,data.birth,data.gender]);
+  if (type === 'member') {
+    var sm = ss.getSheetByName('會員') || ss.insertSheet('會員');
+    if (sm.getLastRow() === 0)
+      sm.appendRow(['Email','姓名','電話','生日','性別']);
+    var fm = sm.createTextFinder(data.email).findNext();
+    if (fm) {
+      sm.getRange(fm.getRow(), 1, 1, 5).setValues([[data.email,data.name,data.phone,data.birth,data.gender]]);
+    } else {
+      sm.appendRow([data.email,data.name,data.phone,data.birth,data.gender]);
+    }
   }
 
-  return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
+  return {ok: true};
 }
 
-function doGet(e){
-  var ss=SpreadsheetApp.openById('YOUR_SPREADSHEET_ID');
-  var type=e.parameter.type||'orders';
-  var sheet=ss.getSheetByName(type==='orders'?'訂單':type==='products'?'商品':'會員');
-  if(!sheet) return ContentService.createTextOutput('[]');
-  var data=sheet.getDataRange().getValues();
-  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var result = processData(data);
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false,error:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    // Handle payload sent via GET (for CORS workaround)
+    if (e.parameter && e.parameter.payload) {
+      var data = JSON.parse(decodeURIComponent(e.parameter.payload));
+      var result = processData(data);
+      return ContentService.createTextOutput(JSON.stringify(result))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    // Normal GET: read sheet data
+    var ss = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID');
+    var type = (e.parameter && e.parameter.type) || 'orders';
+    var sheetName = type==='orders'?'訂單':type==='products'?'商品':'會員';
+    var sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return ContentService.createTextOutput('[]').setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(sheet.getDataRange().getValues()))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false,error:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }</div>
         <div class="form-group">
           <label class="form-label">Apps Script 網頁應用程式 URL</label>
@@ -1172,9 +1222,23 @@ const defaultCarousel=[
   {title:'香水代購開團 🌸',sub:'Dior · Chanel · Jo Malone',tag:'代購 · 正品',btn:'查看香水',linkCat:'perfume',img:''},
 ];
 
+const defaultAboutData={
+  title:'ʜᴀɪʟᴇʏ 海莉代購/選品',
+  subtitle:'嚴選好物 · 用心把關',
+  intro:'哈囉👋🏻 我是 ʜᴀɪʟᴇʏ 海莉代購/選品 的闆娘 Hailey\n\n嚴選美妝、保養、香水、服飾、零食等各式好物✨\n不定期飛各地代購✈️🌍\n代購商品都是 Hailey 親自挑選，用心把關品質❣️\n選品也是 Hailey 親自實測推薦的愛用好物❣️',
+  blocks:[
+    {title:'📌 下單方式',content:'請直接在此網頁下單，或私訊官方 LINE 由小幫手協助下單。',warning:''},
+    {title:'📌 付款方式 & 訂單成立',content:'僅提供匯款，結帳頁面或私訊官方帳號下單後會提供銀行帳號，完成匯款後，麻煩提供帳號後五碼或轉帳截圖畫面。',warning:'⚠️ 店到店下單會先收商品全額款項，面交則會收商品一半款項。\n⚠️ 代購商品訂單成立後禁止更改或取消商品。\n⚠️ 匯款完成訂單才正式成立，24小時內如欲更改請洽詢官方LINE（超過24小時不可更改訂單）。棄單一律以黑名單處理❌'},
+    {title:'📌 寄送方式及運費',content:'目前僅提供面交（限桃園區）、7-11 店到店、全家店到店，店到店運費皆為 60 元，面交不收取運費。',warning:''},
+    {title:'📌 出貨時間',content:'代購商品：Hailey 回國後 5 天內會出貨。\n現貨 7 天內出貨，預購 15–30 天出貨。',warning:''},
+    {title:'📌 退換貨機制',content:'包裹取件後 3 天內提供：破碎照片、開箱影片、包裹單號\n商品有重大瑕疵、破瓶、外包裝嚴重破損，我們將提供退換貨。\n\n運送過程外盒難免會有凹痕，均會加強包裝，包裹都會包好包滿請各位放心👏🏻',warning:''},
+  ]
+};
+
 let categories=LS.get('hailey_cats',defaultCategories);
 let products=LS.get('hailey_products',defaultProducts);
 let carouselData=LS.get('hailey_carousel',defaultCarousel);
+let aboutData=LS.get('hailey_about',defaultAboutData);
 let paymentInfo=LS.get('hailey_payment',{bank:'822 中國信託',acct:'（請私訊取得）'});
 let users=LS.get('hailey_users',[{email:'admin@hailey.com',pw:'admin123',name:'Hailey',isAdmin:true,gender:'女',phone:'',birth:'',shipping:{face:true,s711:false,s711store:'',family:false,familystore:''},coupons:[]}]);
 let orders=LS.get('hailey_orders',[]);
@@ -1690,6 +1754,9 @@ function selectShipping(type){
   const map={face:'shippingFace','711':'shipping711',family:'shippingFamily'};
   document.getElementById(map[type])?.classList.add('selected');
   document.getElementById('storeInfoInput').style.display=(type!=='face')?'block':'none';
+  // Show LINE hint for face, hide for store
+  const faceHint=document.getElementById('faceShippingHint');
+  if(faceHint) faceHint.style.display=(type==='face')?'block':'none';
   updateSummary();
 }
 
@@ -2045,6 +2112,112 @@ function sendCoupon(){
 }
 
 // ═══════════════════════════
+//  ABOUT PAGE
+// ═══════════════════════════
+function renderAboutPage(){
+  const el=document.getElementById('aboutPageContent');
+  if(!el) return;
+  const d=aboutData||defaultAboutData;
+  const logoUrl=localStorage.getItem('hailey_logo')||'https://i.ibb.co/YFZbDhzh/HAILEY-Logo-1.jpg';
+  el.innerHTML=`
+    <div class="about-logo">
+      <img src="${logoUrl}" alt="Logo" style="height:100px;margin:0 auto 12px"
+           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div style="display:none;font-family:'Playfair Display',serif;font-size:32px;color:var(--accent-dark);text-align:center;margin-bottom:12px">ʜᴀɪʟᴇʏ</div>
+      <div class="about-title">${d.title}</div>
+      <div class="about-subtitle">${d.subtitle}</div>
+    </div>
+    <div class="about-card">
+      <div class="about-text">${(d.intro||'').replace(/\n/g,'<br>')}</div>
+    </div>
+    ${(d.blocks||[]).map(b=>`
+    <div class="about-card">
+      <div class="about-card-title">${b.title}</div>
+      <div class="about-text">${(b.content||'').replace(/\n/g,'<br>')}</div>
+      ${b.warning?`<div class="about-warning">${b.warning.replace(/\n/g,'<br>')}</div>`:''}
+    </div>`).join('')}`;
+}
+
+function loadAboutAdmin(){
+  const d=aboutData||defaultAboutData;
+  document.getElementById('aTitle').value=d.title||'';
+  document.getElementById('aSubtitle').value=d.subtitle||'';
+  document.getElementById('aIntro').value=d.intro||'';
+  renderAboutBlocksAdmin(d.blocks||[]);
+}
+
+function renderAboutBlocksAdmin(blocks){
+  const el=document.getElementById('aBlocksList');
+  el.innerHTML=blocks.map((b,i)=>`
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:700;color:var(--accent-dark)">區塊 ${i+1}</span>
+        <div style="display:flex;gap:6px">
+          ${i>0?`<button class="btn-sm btn-edit" onclick="moveAboutBlock(${i},-1)">↑</button>`:''}
+          ${i<blocks.length-1?`<button class="btn-sm btn-edit" onclick="moveAboutBlock(${i},1)">↓</button>`:''}
+          <button class="btn-sm btn-del" onclick="delAboutBlock(${i})">刪除</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">標題</label>
+        <input class="form-input" id="abt${i}" value="${(b.title||'').replace(/"/g,'&quot;')}" placeholder="📌 標題">
+      </div>
+      <div class="form-group">
+        <label class="form-label">內文</label>
+        <textarea class="form-input" id="abc${i}" rows="3" placeholder="內文...">${b.content||''}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">警示文字（⚠️ 橘色區塊，選填）</label>
+        <textarea class="form-input" id="abw${i}" rows="2" placeholder="留空則不顯示">${b.warning||''}</textarea>
+      </div>
+    </div>`).join('');
+}
+
+function addAboutBlock(){
+  const d=aboutData||defaultAboutData;
+  if(!d.blocks) d.blocks=[];
+  d.blocks.push({title:'📌 新增區塊',content:'',warning:''});
+  renderAboutBlocksAdmin(d.blocks);
+}
+
+function delAboutBlock(i){
+  const d=aboutData||defaultAboutData;
+  d.blocks.splice(i,1);
+  renderAboutBlocksAdmin(d.blocks);
+}
+
+function moveAboutBlock(i,dir){
+  const d=aboutData||defaultAboutData;
+  const j=i+dir;
+  if(j<0||j>=d.blocks.length) return;
+  [d.blocks[i],d.blocks[j]]=[d.blocks[j],d.blocks[i]];
+  renderAboutBlocksAdmin(d.blocks);
+}
+
+function saveAboutPage(){
+  const d=aboutData||defaultAboutData;
+  d.title=document.getElementById('aTitle').value.trim();
+  d.subtitle=document.getElementById('aSubtitle').value.trim();
+  d.intro=document.getElementById('aIntro').value;
+  // read blocks from DOM
+  const blocks=[];
+  let i=0;
+  while(document.getElementById('abt'+i)){
+    blocks.push({
+      title:document.getElementById('abt'+i).value,
+      content:document.getElementById('abc'+i).value,
+      warning:document.getElementById('abw'+i).value
+    });
+    i++;
+  }
+  d.blocks=blocks;
+  aboutData=d;
+  LS.set('hailey_about',aboutData);
+  renderAboutPage();
+  showToast('介紹頁已儲存 ✅');
+}
+
+// ═══════════════════════════
 //  ADMIN
 // ═══════════════════════════
 function openAdmin(){
@@ -2053,6 +2226,7 @@ function openAdmin(){
   renderAdminProducts();
   renderAdminCarousel();
   renderAdminCategories();
+  loadAboutAdmin();
   renderAdminMembers();
   renderAdminOrders();
   renderAdminCoupons();
@@ -2920,19 +3094,23 @@ async function sheetsPost(data){
   if(!url) return false;
   try{
     showSheetsStatus('syncing','同步中…');
-    // Use no-cors to avoid CORS preflight — Apps Script responds but browser can't read body
-    // This is fire-and-forget: data reaches the sheet, we just can't read the response
-    await fetch(url,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify(data)
-    });
+    // Encode data as URL param to work around no-cors POST body limitations
+    const encoded=encodeURIComponent(JSON.stringify(data));
+    const getUrl=url+'?payload='+encoded;
+    // First try GET (with payload in URL) which avoids CORS preflight entirely
+    await fetch(getUrl,{method:'GET',mode:'no-cors'});
     showSheetsStatus('ok','已同步 ✅');
     return true;
   } catch(err){
-    showSheetsStatus('error','同步失敗');
-    return false;
+    // Fallback: try POST no-cors
+    try{
+      await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});
+      showSheetsStatus('ok','已同步 ✅');
+      return true;
+    } catch(e){
+      showSheetsStatus('error','同步失敗');
+      return false;
+    }
   }
 }
 
@@ -3016,6 +3194,7 @@ function init(){
   buildCatBar();
   buildCatSelect();
   renderProducts();
+  renderAboutPage();
   updateCartBadge();
   updateNavAuth();
   document.getElementById('paymentBankInfo').innerHTML=`銀行代號：${paymentInfo.bank}<br>帳號：${paymentInfo.acct}`;
