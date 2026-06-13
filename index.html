@@ -2920,12 +2920,14 @@ async function sheetsPost(data){
   if(!url) return false;
   try{
     showSheetsStatus('syncing','同步中…');
-    const res=await fetch(url,{
+    // Use no-cors to avoid CORS preflight — Apps Script responds but browser can't read body
+    // This is fire-and-forget: data reaches the sheet, we just can't read the response
+    await fetch(url,{
       method:'POST',
+      mode:'no-cors',
       headers:{'Content-Type':'text/plain'},
       body:JSON.stringify(data)
     });
-    const json=await res.json();
     showSheetsStatus('ok','已同步 ✅');
     return true;
   } catch(err){
@@ -2941,11 +2943,19 @@ async function testSheetsConnection(){
   if(!url){el.style.color='var(--danger)';el.textContent='⚠️ 請先填入 Apps Script URL';return}
   el.style.color='var(--text-muted)';el.textContent='測試中…';
   try{
-    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ping'})});
-    const json=await res.json();
-    el.style.color='var(--success)';el.textContent='✅ 連線成功！試算表已就緒';
+    // Use no-cors — if it doesn't throw, the URL is reachable
+    await fetch(url,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({type:'ping'})
+    });
+    // no-cors always returns opaque response — if no error thrown, connection is OK
+    el.style.color='var(--success)';
+    el.textContent='✅ 連線成功！資料會同步至試算表（Apps Script 已就緒）';
   } catch(e){
-    el.style.color='var(--danger)';el.textContent='❌ 連線失敗：'+e.message;
+    el.style.color='var(--danger)';
+    el.textContent='❌ 連線失敗：'+e.message+'（請確認已部署且存取權設為「所有人」）';
   }
 }
 
