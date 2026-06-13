@@ -352,9 +352,75 @@ img{max-width:100%;display:block}
 .sheets-dot.syncing{background:var(--accent);animation:pulse .8s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
+/* ══ MOBILE RESPONSIVE ══ */
+@media(max-width:480px){
+  /* Nav: shrink everything */
+  #nav{padding:0 10px;gap:6px;height:56px}
+  :root{--nav-h:56px}
+  .nav-logo img{height:32px}
+  .nav-tab{padding:6px 8px;font-size:11px}
+  .nav-login-btn{padding:6px 10px;font-size:11px}
+  .nav-cart-btn{padding:6px}
+
+  /* Products */
+  .products-section{padding:12px}
+  .products-grid{gap:8px}
+  .product-card-body{padding:8px 8px 10px}
+  .product-card-name{font-size:11px}
+  .product-card-price{font-size:12px}
+
+  /* Search bar */
+  .search-bar-wrap{min-width:120px;max-width:100%}
+  .search-input{font-size:12px}
+
+  /* Special cat bar */
+  .special-cat-bar{padding:6px 10px;gap:6px}
+  .special-cat-btn{padding:6px 12px;font-size:12px}
+
+  /* Cart page */
+  .cart-wrap{padding:16px 12px}
+  .cart-item-img{width:52px;height:52px}
+  .checkout-box,.payment-box{padding:14px 12px}
+  .shipping-options{grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .shipping-opt{padding:8px 4px}
+  .shipping-opt-name{font-size:11px}
+  .shipping-opt-price{font-size:10px}
+
+  /* Member page */
+  .member-wrap{padding:20px 12px}
+  .member-tab-btn{padding:8px 12px;font-size:12px}
+  .form-row{grid-template-columns:1fr}
+
+  /* Modal */
+  .modal-body{padding:14px}
+  .modal-name{font-size:17px}
+  .modal-price{font-size:16px}
+
+  /* Admin */
+  .admin-body{padding:14px 12px}
+  .admin-tabs{gap:4px}
+  .admin-tab-btn{padding:6px 10px;font-size:11px}
+  .admin-form-grid{grid-template-columns:1fr}
+
+  /* About page */
+  .about-wrap{padding:24px 14px}
+
+  /* Float buttons: shrink on mobile */
+  .line-float{padding:8px 12px 8px 10px;font-size:12px;bottom:76px;right:10px}
+  .admin-gear{width:40px;height:40px;font-size:17px;bottom:18px;right:10px}
+
+  /* Order card */
+  .order-card-header{flex-direction:column;align-items:flex-start;gap:6px}
+}
 @media(max-width:360px){
   .nav-tabs{gap:0}
-  .nav-tab{padding:8px 8px;font-size:11px}
+  .nav-tab{padding:6px 6px;font-size:10px}
+  .products-grid{gap:6px}
+}
+@media(max-width:480px){
+  /* Fix overlapping section title + search */
+  .products-section > div:first-of-type{flex-direction:column;align-items:stretch;gap:8px}
+  .section-title{font-size:16px}
 }
 </style>
 </head>
@@ -1347,6 +1413,8 @@ function doRegister(){
 
 function loginSuccess(user){
   currentUser=user;
+  // Persist login across page refreshes
+  localStorage.setItem('hailey_session',user.email);
   closeLogin();
   updateNavAuth();
   if(user.isAdmin) document.getElementById('adminGearBtn').classList.add('show');
@@ -1356,10 +1424,24 @@ function loginSuccess(user){
 
 function logout(){
   currentUser=null;
+  localStorage.removeItem('hailey_session');
   document.getElementById('adminGearBtn').classList.remove('show');
   updateNavAuth();
   if(currentPage==='member') renderMember();
   showToast('已登出');
+}
+
+function restoreSession(){
+  const email=localStorage.getItem('hailey_session');
+  if(!email) return;
+  const user=users.find(u=>u.email===email);
+  if(user){
+    currentUser=user;
+    updateNavAuth();
+    if(user.isAdmin) document.getElementById('adminGearBtn').classList.add('show');
+  } else {
+    localStorage.removeItem('hailey_session');
+  }
 }
 
 function updateNavAuth(){
@@ -1757,6 +1839,14 @@ function selectShipping(type){
   // Show LINE hint for face, hide for store
   const faceHint=document.getElementById('faceShippingHint');
   if(faceHint) faceHint.style.display=(type==='face')?'block':'none';
+  // Auto-fill store info from member profile
+  const storeInput=document.getElementById("checkoutStore");
+  if(storeInput&&currentUser?.shipping){
+    const s=currentUser.shipping;
+    if(type==="711"&&s.s711store) storeInput.value=s.s711store;
+    else if(type==="family"&&s.familystore) storeInput.value=s.familystore;
+    else if(type!=="face") storeInput.value="";
+  }
   updateSummary();
 }
 
@@ -2827,13 +2917,16 @@ function renderAdminOrders(){
           <div style="font-weight:700;font-size:13px">${o.id}</div>
           <div style="font-size:11px;color:var(--text-muted)">${o.date} · ${o.name||o.email||'未登入'} ${o.email?'· '+o.email:''}</div>
         </div>
-        <select style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer" onchange="updateOrderStatus('${o.id}',this.value)">
-          <option${o.status==='待確認'?' selected':''}>待確認</option>
-          <option${o.status==='已確認'?' selected':''}>已確認</option>
-          <option${o.status==='出貨中'?' selected':''}>出貨中</option>
-          <option${o.status==='已完成'?' selected':''}>已完成</option>
-          <option${o.status==='已取消'?' selected':''}>已取消</option>
-        </select>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <select style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer" onchange="updateOrderStatus('${o.id}',this.value)">
+            <option${o.status==='待確認'?' selected':''}>待確認</option>
+            <option${o.status==='已確認'?' selected':''}>已確認</option>
+            <option${o.status==='出貨中'?' selected':''}>出貨中</option>
+            <option${o.status==='已完成'?' selected':''}>已完成</option>
+            <option${o.status==='已取消'?' selected':''}>已取消</option>
+          </select>
+          <button class="btn-sm btn-del" onclick="deleteOrder('${o.id}')" style="white-space:nowrap">🗑 刪除訂單</button>
+        </div>
       </div>
       <div style="background:#fafaf8;border-radius:var(--r-sm);padding:10px;margin-bottom:10px">
         ${itemsHtml}
@@ -2881,7 +2974,18 @@ function adminApplyOrderCoupon(orderId){
   showToast(`已套用優惠券 ${code}，折扣 -$${discount}`);
 }
 
-/* 覆寫 recalcOrder 支援優惠券折扣 */
+/* 刪除整筆訂單（後台 + 會員訂單記錄同步消失）*/
+function deleteOrder(orderId){
+  if(!confirm(`確定要刪除訂單 ${orderId}？\n刪除後會員也將看不到此筆訂單，無法復原。`)) return;
+  orders=orders.filter(o=>o.id!==orderId);
+  LS.set('hailey_orders',orders);
+  renderAdminOrders();
+  // If member detail open, refresh
+  if(editingMemberEmail) openMemberDetail(editingMemberEmail);
+  showToast(`訂單 ${orderId} 已刪除`);
+}
+
+
 function recalcOrder(orderId){
   const o=orders.find(o=>o.id===orderId);
   if(!o) return;
@@ -3094,23 +3198,20 @@ async function sheetsPost(data){
   if(!url) return false;
   try{
     showSheetsStatus('syncing','同步中…');
-    // Encode data as URL param to work around no-cors POST body limitations
+    // Strategy: encode data as URL param and send via GET
+    // Apps Script doGet handles ?payload=... and writes to sheet
     const encoded=encodeURIComponent(JSON.stringify(data));
-    const getUrl=url+'?payload='+encoded;
-    // First try GET (with payload in URL) which avoids CORS preflight entirely
-    await fetch(getUrl,{method:'GET',mode:'no-cors'});
+    // Apps Script URL has a max length; for large payloads split or use POST no-cors
+    if(encoded.length<2000){
+      await fetch(url+'?payload='+encoded,{method:'GET',mode:'no-cors'});
+    } else {
+      await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});
+    }
     showSheetsStatus('ok','已同步 ✅');
     return true;
   } catch(err){
-    // Fallback: try POST no-cors
-    try{
-      await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});
-      showSheetsStatus('ok','已同步 ✅');
-      return true;
-    } catch(e){
-      showSheetsStatus('error','同步失敗');
-      return false;
-    }
+    showSheetsStatus('error','同步失敗: '+err.message);
+    return false;
   }
 }
 
@@ -3195,6 +3296,7 @@ function init(){
   buildCatSelect();
   renderProducts();
   renderAboutPage();
+  restoreSession();
   updateCartBadge();
   updateNavAuth();
   document.getElementById('paymentBankInfo').innerHTML=`銀行代號：${paymentInfo.bank}<br>帳號：${paymentInfo.acct}`;
