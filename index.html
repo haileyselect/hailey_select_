@@ -948,18 +948,38 @@ img{max-width:100%;display:block}
           </div>
           <button class="admin-save-btn" style="background:#9b7fd4;border-color:#9b7fd4" onclick="saveEventSettings()">儲存活動設定</button>
         </div>
-        <div style="margin-bottom:16px;font-size:13px;color:var(--text-muted)">可新增鞋子品牌、香水品牌等子分類</div>
+
+        <!-- 新增父分類 -->
+        <div style="background:#fff5e8;border:1px solid #e8c88a;border-radius:var(--r-sm);padding:16px;margin-bottom:12px">
+          <div class="admin-form-title" style="color:var(--accent-dark)">＋ 新增父分類</div>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-top:8px">
+            <div style="flex:1;min-width:120px">
+              <label class="form-label">分類名稱</label>
+              <input class="form-input" id="newParentName" placeholder="例：零食、家居、文具">
+            </div>
+            <div style="min-width:80px">
+              <label class="form-label">分類 ID（英文）</label>
+              <input class="form-input" id="newParentId" placeholder="例：food">
+            </div>
+            <button class="btn-add" onclick="addParentCat()" style="margin-bottom:0;flex-shrink:0">新增</button>
+          </div>
+        </div>
+
+        <!-- 分類列表（含隱藏控制 + 子分類管理）-->
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text)">分類管理 <span style="font-size:11px;font-weight:400;color:var(--text-muted)">（👁 = 顯示中，🚫 = 已隱藏）</span></div>
         <div id="adminCatList"></div>
+
+        <!-- 新增子分類 -->
         <div style="margin-top:16px;background:var(--accent-light);padding:16px;border-radius:var(--r-sm)">
-          <div class="admin-form-title">新增子分類</div>
+          <div class="admin-form-title">＋ 新增子分類</div>
           <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:8px">
             <div>
               <label class="form-label">父分類</label>
               <select class="form-input" id="newSubParent" style="min-width:120px"></select>
             </div>
-            <div>
-              <label class="form-label">新子分類名稱</label>
-              <input class="form-input" id="newSubName" placeholder="例：Nike">
+            <div style="flex:1;min-width:120px">
+              <label class="form-label">子分類名稱</label>
+              <input class="form-input" id="newSubName" placeholder="例：Nike、韓系、日系">
             </div>
             <button class="btn-add" onclick="addSubCat()" style="margin-bottom:0">新增</button>
           </div>
@@ -1569,11 +1589,11 @@ function startCarouselTimer(){clearInterval(carouselTimer);carouselTimer=setInte
 function buildCatBar(){
   const bar=document.getElementById('catScroll');
   const specialBar=document.getElementById('specialCatBar');
-  // Main row: all + normal categories
-  bar.innerHTML=categories.filter(c=>!c.special).map(c=>
+  // Main row: all + non-hidden normal categories
+  bar.innerHTML=categories.filter(c=>!c.special&&!c.hidden).map(c=>
     `<button class="cat-item${c.id===currentCat?' active':''}" onclick="selectCat('${c.id}')">${c.name}</button>`
   ).join('');
-  // Special row: new/sale/event
+  // Special row: new/sale/event (never hidden by default)
   const specials=categories.filter(c=>c.special);
   if(specials.length){
     specialBar.innerHTML=specials.map(c=>{
@@ -1587,13 +1607,14 @@ function buildCatBar(){
 
 function selectCat(id){
   currentCat=id; currentSubCat='';
-  // Show shop page if not already
   if(currentPage!=='shop') showPage('shop');
   buildCatBar();
   const cat=categories.find(c=>c.id===id);
   const subBar=document.getElementById('subCatBar');
-  if(cat&&cat.subs&&cat.subs.length>0){
-    subBar.innerHTML=cat.subs.map(s=>`<button class="sub-cat-chip${s===currentSubCat?' active':''}" onclick="selectSubCat('${s}')">${s}</button>`).join('');
+  // Only show subs that are not hidden
+  const visibleSubs=(cat?.subs||[]).filter(s=>!(cat.hiddenSubs||[]).includes(s));
+  if(visibleSubs.length>0){
+    subBar.innerHTML=visibleSubs.map(s=>`<button class="sub-cat-chip${s===currentSubCat?' active':''}" onclick="selectSubCat('${s}')">${s}</button>`).join('');
     subBar.classList.add('visible');
   } else {
     subBar.classList.remove('visible'); subBar.innerHTML='';
@@ -2329,9 +2350,12 @@ function renderAboutPage(){
   const logoUrl=localStorage.getItem('hailey_logo')||'https://i.ibb.co/YFZbDhzh/HAILEY-Logo-1.jpg';
   el.innerHTML=`
     <div class="about-logo">
-      <img src="${logoUrl}" alt="Logo" style="height:100px;margin:0 auto 12px"
-           onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block'">
-      <div style="display:none;font-family:'Playfair Display',serif;font-size:32px;color:var(--accent-dark);text-align:center;margin-bottom:12px">ʜᴀɪʟᴇʏ</div>
+      <div style="text-align:center;margin-bottom:16px">
+        <img src="${logoUrl}" alt="Logo"
+             style="height:110px;max-width:220px;margin:0 auto;display:block;object-fit:contain"
+             onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block'">
+        <div style="display:none;font-family:'Playfair Display',serif;font-size:36px;color:var(--accent-dark);font-weight:600;letter-spacing:.05em">ʜᴀɪʟᴇʏ</div>
+      </div>
       <div class="about-title">${d.title}</div>
       <div class="about-subtitle">${d.subtitle}</div>
     </div>
@@ -2707,16 +2731,83 @@ function saveEventSettings(){
 
 function renderAdminCategories(){
   const list=document.getElementById('adminCatList');
-  list.innerHTML=categories.filter(c=>c.id!=='all'&&!c.special).map((c)=>`
-    <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
-      <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--accent-dark)">${c.name}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${(c.subs||[]).map(s=>`<span style="background:#fff;border:1px solid var(--border);padding:4px 10px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px">${s}<button onclick="delSubCat('${c.id}','${s}')" style="border:none;background:transparent;color:var(--danger);cursor:pointer;font-size:14px;padding:0;line-height:1">×</button></span>`).join('')}
-        ${!(c.subs||[]).length?'<span style="font-size:12px;color:var(--text-muted)">（無子分類）</span>':''}
+  const editable=categories.filter(c=>c.id!=='all'&&!c.special);
+  list.innerHTML=editable.map((c)=>{
+    const isHidden=c.hidden||false;
+    const subHtml=(c.subs||[]).map(s=>{
+      const subHidden=c.hiddenSubs&&c.hiddenSubs.includes(s);
+      return `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px dashed var(--border)">
+        <span style="flex:1;font-size:12px;${subHidden?'opacity:.45;text-decoration:line-through;':''}">${s}</span>
+        <button class="btn-sm" style="background:${subHidden?'#e8f0fe':'#fde8e8'};color:${subHidden?'#4285f4':'var(--danger)'};font-size:10px;padding:3px 7px"
+          onclick="toggleSubCatHide('${c.id}','${s}')" title="${subHidden?'顯示':'隱藏'}">
+          ${subHidden?'👁 顯示':'🚫 隱藏'}
+        </button>
+        <button class="btn-sm btn-del" style="font-size:10px;padding:3px 7px" onclick="delSubCat('${c.id}','${s}')">刪除</button>
+      </div>`;
+    }).join('');
+
+    return `<div style="margin-bottom:12px;background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:${isHidden?'#f5f5f5':'var(--accent-light)'}">
+        <span style="flex:1;font-weight:700;font-size:13px;${isHidden?'opacity:.5;text-decoration:line-through;':''}color:var(--accent-dark)">${c.name}</span>
+        <span style="font-size:11px;color:var(--text-muted)">${(c.subs||[]).length} 個子分類</span>
+        <button class="btn-sm" style="background:${isHidden?'#e8f0fe':'#f0f0f0'};color:${isHidden?'#4285f4':'#666'};font-size:10px;padding:4px 8px"
+          onclick="toggleCatHide('${c.id}')">${isHidden?'👁 顯示分類':'🚫 隱藏分類'}</button>
+        <button class="btn-sm btn-del" style="font-size:10px;padding:4px 8px" onclick="delParentCat('${c.id}')">刪除</button>
       </div>
-    </div>`).join('');
+      ${(c.subs||[]).length>0?`<div style="padding:8px 14px">${subHtml}</div>`:'<div style="padding:8px 14px;font-size:12px;color:var(--text-muted)">尚無子分類</div>'}
+    </div>`;
+  }).join('');
+
+  // Update newSubParent select
   const sel=document.getElementById('newSubParent');
-  sel.innerHTML=categories.filter(c=>c.id!=='all'&&!c.special).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  sel.innerHTML=editable.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function addParentCat(){
+  const name=document.getElementById('newParentName').value.trim();
+  let id=document.getElementById('newParentId').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  if(!name){showToast('請輸入分類名稱');return}
+  if(!id) id='cat_'+Date.now();
+  if(categories.find(c=>c.id===id)){showToast('此 ID 已存在，請換一個');return}
+  categories.push({id,name,subs:[],hidden:false});
+  LS.set('hailey_cats',categories);
+  document.getElementById('newParentName').value='';
+  document.getElementById('newParentId').value='';
+  renderAdminCategories(); buildCatBar(); buildCatSelect();
+  showToast(`已新增「${name}」✅`);
+}
+
+function delParentCat(catId){
+  const c=categories.find(c=>c.id===catId);
+  if(!c){return}
+  if(!confirm(`確定刪除分類「${c.name}」？此分類下的子分類也會一併刪除（商品不受影響）。`)) return;
+  categories=categories.filter(c=>c.id!==catId);
+  LS.set('hailey_cats',categories);
+  renderAdminCategories(); buildCatBar(); buildCatSelect();
+  showToast(`已刪除「${c.name}」`);
+}
+
+function toggleCatHide(catId){
+  const c=categories.find(c=>c.id===catId);
+  if(!c) return;
+  c.hidden=!c.hidden;
+  LS.set('hailey_cats',categories);
+  renderAdminCategories(); buildCatBar();
+  showToast(c.hidden?`「${c.name}」已隱藏`:`「${c.name}」已顯示`);
+}
+
+function toggleSubCatHide(catId,sub){
+  const c=categories.find(c=>c.id===catId);
+  if(!c) return;
+  if(!c.hiddenSubs) c.hiddenSubs=[];
+  if(c.hiddenSubs.includes(sub)){
+    c.hiddenSubs=c.hiddenSubs.filter(s=>s!==sub);
+  } else {
+    c.hiddenSubs.push(sub);
+  }
+  LS.set('hailey_cats',categories);
+  renderAdminCategories();
+  showToast('子分類顯示狀態已更新');
 }
 
 function addSubCat(){
@@ -2749,7 +2840,7 @@ function updateSubCatOptions(){
   const subSel=document.getElementById('pSubCat');
   if(!subSel) return;
   if(cat&&cat.subs&&cat.subs.length>0){
-    subSel.innerHTML='<option value="">（無）</option>'+cat.subs.map(s=>`<option>${s}</option>`).join('');
+    subSel.innerHTML='<option value="">（無）</option>'+cat.subs.map(s=>`<option value="${s}">${s}${(cat.hiddenSubs||[]).includes(s)?' (隱藏)':''}</option>`).join('');
   } else {
     subSel.innerHTML='<option value="">（無子分類）</option>';
   }
@@ -2758,7 +2849,7 @@ function updateSubCatOptions(){
 function buildCatSelect(){
   const sel=document.getElementById('pCat');
   if(!sel) return;
-  sel.innerHTML=categories.filter(c=>c.id!=='all'&&!c.special).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  sel.innerHTML=categories.filter(c=>c.id!=='all'&&!c.special).map(c=>`<option value="${c.id}">${c.name}${c.hidden?' (隱藏中)':''}</option>`).join('');
 }
 
 /* PAYMENT ADMIN */
