@@ -126,17 +126,56 @@ img{max-width:100%;display:block}
 .product-card-price{font-size:13px;font-weight:700;color:var(--accent-dark)}
 @media(min-width:600px){.product-card-price{font-size:14px}}
 
-/* PRODUCT MODAL */
+/* PRODUCT MODAL IMAGE SLIDER */
+.modal-slider{position:relative;aspect-ratio:4/3;background:var(--accent-light);overflow:hidden}
+.modal-slider-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.modal-slide{min-width:100%;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--accent-light)}
+.modal-slide img{width:100%;height:100%;object-fit:cover}
+.modal-slide .no-img-lg{font-size:64px}
+.modal-slider-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  background:rgba(255,255,255,.88);border:none;border-radius:50%;
+  width:34px;height:34px;font-size:18px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;color:var(--text);
+}
+.modal-slider-arrow:hover{background:#fff;box-shadow:var(--shadow)}
+.modal-slider-prev{left:10px}
+.modal-slider-next{right:10px}
+.modal-slider-arrow[style*="display:none"]{display:none!important}
+.modal-slider-dots{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;z-index:3;
+}
+.modal-slider-dot{
+  width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);
+  border:none;padding:0;cursor:pointer;transition:all .2s;
+}
+.modal-slider-dot.active{background:#fff;width:16px;border-radius:3px}
+/* Thumbnail strip */
+.modal-thumb-strip{
+  display:flex;gap:6px;overflow-x:auto;padding:8px 16px;background:#faf8f5;
+  scrollbar-width:none;border-bottom:1px solid var(--border);
+}
+.modal-thumb-strip::-webkit-scrollbar{display:none}
+.modal-thumb{
+  width:52px;height:52px;flex-shrink:0;border-radius:6px;overflow:hidden;
+  border:2px solid transparent;cursor:pointer;transition:border-color .2s;background:var(--accent-light);
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-thumb.active{border-color:var(--accent-dark)}
+.modal-thumb img{width:100%;height:100%;object-fit:cover}
+.modal-thumb .thumb-no-img{font-size:18px}
+
+/* PRODUCT MODAL overlay + box */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
 @media(min-width:600px){.modal-overlay{align-items:center}}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal-box{background:#fff;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;border-radius:var(--r) var(--r) 0 0;transform:translateY(30px);transition:transform .3s}
 @media(min-width:600px){.modal-box{border-radius:var(--r);transform:scale(.95)}}
 .modal-overlay.open .modal-box{transform:translateY(0) scale(1)}
-.modal-img{aspect-ratio:4/3;background:var(--accent-light);overflow:hidden;position:relative}
-.modal-img img{width:100%;height:100%;object-fit:cover}
 .no-img-lg{display:flex;align-items:center;justify-content:center;height:100%;font-size:64px}
-.modal-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;z-index:1}
+.modal-close{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.92);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;z-index:4;cursor:pointer}
 .modal-body{padding:20px}
 .modal-name{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:6px}
 .modal-price{font-size:18px;font-weight:700;color:var(--accent-dark);margin-bottom:12px}
@@ -668,10 +707,16 @@ img{max-width:100%;display:block}
 <!-- PRODUCT MODAL -->
 <div class="modal-overlay" id="productModal" onclick="closeModalOutside(event)">
   <div class="modal-box">
-    <div class="modal-img" id="modalImg">
-      <div class="no-img-lg">🛍</div>
+    <!-- Image slider -->
+    <div class="modal-slider" id="modalSlider">
+      <div class="modal-slider-track" id="modalSliderTrack"></div>
+      <button class="modal-slider-arrow modal-slider-prev" id="modalPrev" onclick="modalSlideMove(-1)">‹</button>
+      <button class="modal-slider-arrow modal-slider-next" id="modalNext" onclick="modalSlideMove(1)">›</button>
+      <div class="modal-slider-dots" id="modalSliderDots"></div>
       <button class="modal-close" onclick="closeProductModal()">✕</button>
     </div>
+    <!-- Thumbnail strip (hidden when only 1 image) -->
+    <div class="modal-thumb-strip" id="modalThumbStrip" style="display:none"></div>
     <div class="modal-body">
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px" id="modalCategory"></div>
       <div class="modal-name" id="modalName"></div>
@@ -802,8 +847,13 @@ img{max-width:100%;display:block}
             <div style="font-size:11px;color:var(--text-muted);margin-top:4px">勾選後商品會同時出現在對應專區（除了原本分類）</div>
           </div>
           <div class="form-group" style="margin-top:8px">
-            <label class="form-label">商品圖片 URL</label>
-            <input class="form-input" id="pImg" placeholder="https://...">
+            <label class="form-label">商品圖片（可新增多張，第一張為主圖）</label>
+            <div id="pImgList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" id="pImgNew" placeholder="貼上圖片 URL…" style="flex:1">
+              <button class="btn-add" onclick="addProductImg()" style="padding:8px 14px;white-space:nowrap">新增</button>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">建議使用 <a href="https://imgur.com" target="_blank" style="color:var(--accent-dark)">imgur.com</a> 上傳，右鍵複製圖片網址（.jpg/.png結尾）</div>
           </div>
           <div class="form-group">
             <label class="form-label">商品描述</label>
@@ -1326,6 +1376,8 @@ let appliedCouponCode='';
 let currentCouponDiscount=0;
 let selectedColor='';
 let selectedSize='';
+let modalSlideIdx=0;
+let modalImages=[];
 
 // ═══════════════════════════
 //  SPEC PARSING
@@ -1649,9 +1701,10 @@ function renderProducts(){
     const badgeHtml=p.badge==='new'?'<div class="product-badge new">NEW</div>':
                     p.badge==='sale'?'<div class="product-badge">SALE</div>':
                     p.badge&&p.badge!==''&&p.badge!=='new'&&p.badge!=='sale'?`<div class="product-badge" style="background:var(--accent)">${p.badge}</div>`:'';
+    const cardImg=Array.isArray(p.imgs)&&p.imgs[0]?p.imgs[0]:(p.img||'');
     return `<div class="product-card" onclick="openProduct(${realIdx})">
       <div class="product-card-img">
-        ${p.img?`<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=no-img>🛍</div>'">`:'<div class="no-img">🛍</div>'}
+        ${cardImg?`<img src="${cardImg}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=no-img>🛍</div>'">`:'<div class="no-img">🛍</div>'}
         ${badgeHtml}
       </div>
       <div class="product-card-body">
@@ -1676,10 +1729,13 @@ function openProduct(idx){
   document.getElementById('modalName').textContent=p.name;
   document.getElementById('modalDesc').textContent=p.desc||'';
 
-  const imgDiv=document.getElementById('modalImg');
-  imgDiv.innerHTML=(p.img?`<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=no-img-lg>🛍</div><button class=modal-close onclick=closeProductModal()>✕</button>'">`:
-    '<div class="no-img-lg">🛍</div>')+
-    '<button class="modal-close" onclick="closeProductModal()">✕</button>';
+  // Build image slider
+  modalSlideIdx=0;
+  // Support both p.imgs (array) and p.img (single string, legacy)
+  modalImages=[];
+  if(Array.isArray(p.imgs)&&p.imgs.length>0) modalImages=[...p.imgs];
+  else if(p.img) modalImages=[p.img];
+  buildModalSlider(p.name);
 
   // Specs (single dimension with prices)
   const specWrap=document.getElementById('modalSpecWrap');
@@ -1753,6 +1809,68 @@ function selectSize(s){
 
 function onSpecChange(){updateModalPrice()}
 
+// ═══════════════════════════
+//  MODAL IMAGE SLIDER
+// ═══════════════════════════
+function buildModalSlider(name){
+  const track=document.getElementById('modalSliderTrack');
+  const dots=document.getElementById('modalSliderDots');
+  const thumbStrip=document.getElementById('modalThumbStrip');
+  const prev=document.getElementById('modalPrev');
+  const next=document.getElementById('modalNext');
+
+  const imgs=modalImages.length>0?modalImages:[''];
+
+  // Build slides
+  track.innerHTML=imgs.map((url,i)=>`
+    <div class="modal-slide">
+      ${url?`<img src="${url}" alt="${name} ${i+1}" onerror="this.parentElement.innerHTML='<div class=no-img-lg>🛍</div>'">`:'<div class="no-img-lg">🛍</div>'}
+    </div>`).join('');
+
+  // Dots
+  dots.innerHTML=imgs.length>1?imgs.map((_,i)=>`<button class="modal-slider-dot${i===0?' active':''}" onclick="modalGoSlide(${i})"></button>`).join(''):'';
+
+  // Thumbnails (only if >1)
+  if(imgs.length>1){
+    thumbStrip.style.display='flex';
+    thumbStrip.innerHTML=imgs.map((url,i)=>`
+      <div class="modal-thumb${i===0?' active':''}" onclick="modalGoSlide(${i})">
+        ${url?`<img src="${url}" alt="${i+1}" onerror="this.parentElement.innerHTML='<div class=thumb-no-img>🛍</div>'">`:'<div class="thumb-no-img">🛍</div>'}
+      </div>`).join('');
+  } else {
+    thumbStrip.style.display='none';
+  }
+
+  // Arrows
+  prev.style.display=imgs.length>1?'flex':'none';
+  next.style.display=imgs.length>1?'flex':'none';
+
+  modalGoSlide(0);
+
+  // Touch swipe
+  let tx=0;
+  track.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+  track.addEventListener('touchend',e=>{
+    const diff=tx-e.changedTouches[0].clientX;
+    if(Math.abs(diff)>40) modalSlideMove(diff>0?1:-1);
+  });
+}
+
+function modalGoSlide(i){
+  const imgs=modalImages.length>0?modalImages:[''];
+  modalSlideIdx=Math.max(0,Math.min(i,imgs.length-1));
+  document.getElementById('modalSliderTrack').style.transform=`translateX(-${modalSlideIdx*100}%)`;
+  document.querySelectorAll('.modal-slider-dot').forEach((d,j)=>d.classList.toggle('active',j===modalSlideIdx));
+  document.querySelectorAll('.modal-thumb').forEach((t,j)=>t.classList.toggle('active',j===modalSlideIdx));
+}
+
+function modalSlideMove(dir){
+  const imgs=modalImages.length>0?modalImages:[''];
+  modalGoSlide((modalSlideIdx+dir+imgs.length)%imgs.length);
+}
+
+
+
 function closeProductModal(){document.getElementById('productModal').classList.remove('open');document.body.style.overflow=''}
 function closeModalOutside(e){if(e.target.id==='productModal') closeProductModal()}
 
@@ -1806,7 +1924,7 @@ function renderCart(){
     if(!p) return '';
     const unitPrice=Number(item.price)||Number(p.price)||0;
     return `<div class="cart-item">
-      <div class="cart-item-img">${p.img?`<img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'">`:''}</div>
+      <div class="cart-item-img">${(Array.isArray(p.imgs)&&p.imgs[0]?p.imgs[0]:p.img)?`<img src="${Array.isArray(p.imgs)&&p.imgs[0]?p.imgs[0]:p.img}" alt="${p.name}" onerror="this.style.display='none'">`:''}</div>
       <div class="cart-item-info">
         <div class="cart-item-name">${p.name}</div>
         ${item.spec?`<div class="cart-item-spec">規格：${item.spec}</div>`:''}
@@ -2372,14 +2490,68 @@ function getDisplayPrice(p){
   return p.priceMax&&p.priceMax>p.price?`$${p.price.toLocaleString()}~$${p.priceMax.toLocaleString()}`:`$${p.price.toLocaleString()}`;
 }
 
+/* Product image list management */
+function renderProductImgList(arr){
+  const el=document.getElementById('pImgList');
+  if(!arr||arr.length===0){el.innerHTML='<div style="font-size:12px;color:var(--text-muted);padding:6px 0">尚未加入圖片（至少加入一張）</div>';return}
+  el.innerHTML=arr.map((url,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 10px">
+      <div style="width:44px;height:44px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--accent-light);display:flex;align-items:center;justify-content:center">
+        ${url?`<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'<span style="font-size:18px">🛍</span>'}
+      </div>
+      <input class="form-input" value="${url}" onchange="updateProductImg(${i},this.value)"
+        style="flex:1;padding:6px 10px;font-size:12px" placeholder="圖片 URL">
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        ${i>0?`<button class="btn-sm btn-edit" onclick="moveProductImg(${i},-1)" title="上移">↑</button>`:''}
+        ${i<arr.length-1?`<button class="btn-sm btn-edit" onclick="moveProductImg(${i},1)" title="下移">↓</button>`:''}
+        <button class="btn-sm btn-del" onclick="removeProductImg(${i})" title="刪除">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function getProductImgArr(){
+  const inputs=document.querySelectorAll('#pImgList input');
+  return Array.from(inputs).map(i=>i.value.trim()).filter(Boolean);
+}
+
+function addProductImg(){
+  const url=document.getElementById('pImgNew').value.trim();
+  if(!url){showToast('請先貼上圖片網址');return}
+  const arr=getProductImgArr();
+  arr.push(url);
+  renderProductImgList(arr);
+  document.getElementById('pImgNew').value='';
+}
+
+function removeProductImg(i){
+  const arr=getProductImgArr();
+  arr.splice(i,1);
+  renderProductImgList(arr);
+}
+
+function updateProductImg(i,val){
+  // Handled by onchange directly in input
+}
+
+function moveProductImg(i,dir){
+  const arr=getProductImgArr();
+  const j=i+dir;
+  if(j<0||j>=arr.length) return;
+  [arr[i],arr[j]]=[arr[j],arr[i]];
+  renderProductImgList(arr);
+}
+
 function showProductForm(){
   document.getElementById('productForm').classList.add('show');
   document.getElementById('productFormTitle').textContent='新增商品';
   document.getElementById('pEditIndex').value=-1;
-  ['pName','pImg','pDesc','pSpecs','pPrice','pPriceMax','pBadge','pColors','pSizes'].forEach(id=>document.getElementById(id).value='');
+  ['pName','pDesc','pSpecs','pPrice','pPriceMax','pBadge','pColors','pSizes','pImgNew'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
   document.getElementById('pTagNew').checked=false;
   document.getElementById('pTagSale').checked=false;
   document.getElementById('pTagEvent').checked=false;
+  renderProductImgList([]);
   buildCatSelect();
   updateSubCatOptions();
 }
@@ -2396,12 +2568,15 @@ function editProduct(i){
   document.getElementById('pPrice').value=p.price;
   document.getElementById('pPriceMax').value=p.priceMax||'';
   document.getElementById('pBadge').value=p.badge||'';
-  document.getElementById('pImg').value=p.img||'';
   document.getElementById('pDesc').value=p.desc||'';
   document.getElementById('pSpecs').value=p.specs||'';
   document.getElementById('pName').value=p.name;
   document.getElementById('pColors').value=p.colors||'';
   document.getElementById('pSizes').value=p.sizes||'';
+  document.getElementById('pImgNew').value='';
+  // Load images — support both imgs array and legacy img string
+  const imgArr=Array.isArray(p.imgs)&&p.imgs.length>0?p.imgs:(p.img?[p.img]:[]);
+  renderProductImgList(imgArr);
   const tags=Array.isArray(p.tags)?p.tags:[];
   document.getElementById('pTagNew').checked=tags.includes('new');
   document.getElementById('pTagSale').checked=tags.includes('sale');
@@ -2420,6 +2595,7 @@ function saveProduct(){
   let badge=badgeRaw;
   if(!badge&&tags.includes('new')) badge='new';
   if(!badge&&tags.includes('sale')) badge='sale';
+  const imgs=getProductImgArr();
   const p={
     name:document.getElementById('pName').value.trim(),
     cat:document.getElementById('pCat').value,
@@ -2427,7 +2603,8 @@ function saveProduct(){
     price:Number(document.getElementById('pPrice').value)||0,
     priceMax:Number(document.getElementById('pPriceMax').value)||0,
     badge,tags,
-    img:document.getElementById('pImg').value.trim(),
+    img:imgs[0]||'',   // keep backward compat
+    imgs,              // new multi-image array
     desc:document.getElementById('pDesc').value.trim(),
     specs:document.getElementById('pSpecs').value.trim(),
     colors:document.getElementById('pColors').value.trim(),
