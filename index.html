@@ -788,7 +788,41 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <div id="gsTestResult" style="margin-top:8px;font-size:12px;display:none;padding:8px;border-radius:var(--rs);background:#f5f5f5"></div>
       </div>
       <!-- MEMBERS -->
-      <div class="adm-sec" id="adm-mems"><div id="admMemList"></div></div>
+      <div class="adm-sec" id="adm-mems">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button class="b-add" onclick="showAddMemForm()">＋ 新增會員</button>
+        </div>
+        <div class="adm-form" id="addMemForm">
+          <div class="adm-form-title">新增會員</div>
+          <div class="adm-fgrid">
+            <div class="form-g"><label class="f-lbl">Email（帳號）</label><input class="f-inp" id="amEmail" type="email" placeholder="email@example.com"></div>
+            <div class="form-g"><label class="f-lbl">密碼</label><input class="f-inp" id="amPw" type="text" placeholder="至少 6 位數"></div>
+            <div class="form-g"><label class="f-lbl">真實姓名</label><input class="f-inp" id="amName" placeholder="請輸入真實姓名"></div>
+            <div class="form-g"><label class="f-lbl">電話</label><input class="f-inp" id="amPhone" type="tel" placeholder="09xx-xxx-xxx"></div>
+            <div class="form-g"><label class="f-lbl">生日</label><input class="f-inp" id="amBirth" type="date"></div>
+            <div class="form-g"><label class="f-lbl">性別</label><select class="f-inp" id="amGender"><option value="">請選擇</option><option>女</option><option>男</option><option>不公開</option></select></div>
+          </div>
+          <div class="form-g" style="margin-top:4px">
+            <label class="f-lbl">寄送方式（可複選）</label>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:5px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="amFace" style="accent-color:var(--accent)"> 桃園區面交</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="am711" style="accent-color:var(--accent)"> 7-11 店到店</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="amFam" style="accent-color:var(--accent)"> 全家店到店</label>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+              <input class="f-inp" id="am711s" placeholder="7-11 常用門市（選填）" style="font-size:12px">
+              <input class="f-inp" id="amFams" placeholder="全家常用門市（選填）" style="font-size:12px">
+            </div>
+          </div>
+          <div class="form-g" style="margin-top:4px">
+            <label class="f-lbl">後台備註（僅你可見）</label>
+            <textarea class="f-inp" id="amNote" rows="2" placeholder="備註此會員的特殊需求或資訊…"></textarea>
+          </div>
+          <button class="adm-save" onclick="submitAddMem()">建立會員</button>
+          <button class="adm-cancel" onclick="document.getElementById('addMemForm').classList.remove('vis')">取消</button>
+        </div>
+        <div id="admMemList"></div>
+      </div>
 
       <!-- ORDERS -->
       <div class="adm-sec" id="adm-ords">
@@ -1195,11 +1229,10 @@ function buildCar() {
     slide.onclick=(function(idx){ return function(){ carClick(idx); }; })(i);
     var imgH=s.img?('<img class="car-slide-img" src="'+esc(s.img)+'" alt="" onerror="this.style.display=\'none\'">'):'';
     var tagH=s.tag?('<div class="car-tag">'+esc(s.tag)+'</div>'):'';
-    var titleH=s.title?('<div class="car-title">'+esc(s.title)+'</div>'):'';
+    var titleH='<div class="car-title">'+esc(s.title||'')+'</div>';
     var subH=s.sub?('<div class="car-sub">'+esc(s.sub)+'</div>'):'';
     var btnH=s.btn?('<button class="car-btn" onclick="event.stopPropagation();carClick('+i+')">'+esc(s.btn)+'</button>'):'';
-    var inner=tagH+titleH+subH+btnH;
-    slide.innerHTML=imgH+(inner?('<div class="car-content">'+inner+'</div>'):'' );
+    slide.innerHTML=imgH+'<div class="car-content">'+tagH+titleH+subH+btnH+'</div>';
     track.appendChild(slide);
     var dot=document.createElement('button');
     dot.className='car-dot'+(i===0?' on':'');
@@ -2143,7 +2176,7 @@ function renderAdmMems(){
     +'</div>';
   if(!regular.length){ list.innerHTML=html+'<div style="color:var(--muted);padding:12px 0">尚無會員（若有會員請點重新載入）</div>'; return; }
   regular.forEach(function(u,i){
-    html+='<div class="ali"><div class="ali-name"><div style="font-weight:600">'+esc(u.name||'（未填）')+'</div><div style="font-size:10px;color:var(--muted)">'+esc(u.email)+'</div></div><div class="ali-acts"><button class="bsm b-view" data-memail="'+esc(u.email)+'" onclick="viewMemBtn(this)">詳情</button></div></div>';
+    html+='<div class="ali"><div class="ali-name"><div style="font-weight:600">'+esc(u.name||'（未填）')+'</div><div style="font-size:10px;color:var(--muted)">'+esc(u.email)+(u.note?(' · <span style="color:var(--accent)">📝</span>'):'')+'</div></div><div class="ali-acts"><button class="bsm b-view" data-memail="'+esc(u.email)+'" onclick="viewMemBtn(this)">詳情</button></div></div>';
   });
   list.innerHTML=html;
   var cpTarget=id('cpSendTarget');
@@ -2151,6 +2184,49 @@ function renderAdmMems(){
     cpTarget.innerHTML='<option value="all">所有會員</option>';
     regular.forEach(function(u){ cpTarget.innerHTML+='<option value="'+esc(u.email)+'">'+esc(u.name||u.email)+'</option>'; });
   }
+}
+function showAddMemForm(){
+  var f=document.getElementById('addMemForm');
+  if(!f) return;
+  f.classList.add('vis');
+  ['amEmail','amPw','amName','amPhone','amBirth','amNote'].forEach(function(iid){
+    var el=document.getElementById(iid); if(el) el.value='';
+  });
+  ['amFace','am711','amFam'].forEach(function(iid){
+    var el=document.getElementById(iid); if(el) el.checked=false;
+  });
+  document.getElementById('amGender').value='';
+  f.scrollIntoView({behavior:'smooth'});
+}
+function submitAddMem(){
+  var email=(document.getElementById('amEmail').value||'').trim();
+  var pw=(document.getElementById('amPw').value||'').trim();
+  var name=(document.getElementById('amName').value||'').trim();
+  var phone=(document.getElementById('amPhone').value||'').trim();
+  var birth=document.getElementById('amBirth').value||'';
+  var gender=document.getElementById('amGender').value||'';
+  var note=(document.getElementById('amNote').value||'').trim();
+  if(!email){ toast('請填寫 Email'); return; }
+  if(!pw||pw.length<6){ toast('密碼至少需要 6 位數'); return; }
+  if(users.find(function(u){ return u.email===email; })){ toast('此 Email 已存在'); return; }
+  var nu={
+    email:email, pw:pw, pwh:hashPw(pw),
+    name:name, phone:phone, birth:birth, gender:gender,
+    admin:false, note:note,
+    ship:{
+      face:document.getElementById('amFace').checked,
+      s711:document.getElementById('am711').checked,
+      s711s:(document.getElementById('am711s').value||'').trim(),
+      fam:document.getElementById('amFam').checked,
+      fams:(document.getElementById('amFams').value||'').trim()
+    },
+    coupons:[]
+  };
+  users.push(nu);
+  LS.set('hailey_users',users);
+  document.getElementById('addMemForm').classList.remove('vis');
+  renderAdmMems();
+  toast('會員「'+(name||email)+'」已建立 ✅');
 }
 function reloadMems(){
   var ml=id('admMemList'); if(ml) ml.innerHTML='<div style="color:var(--muted);padding:12px">重新載入中…</div>';
@@ -2203,7 +2279,7 @@ function viewMem(email){
     +'<label style="display:flex;align-items:center;gap:6px;font-size:12px"><input type="checkbox" id="mdFam"'+(shipS.fam?' checked':'')+' style="accent-color:var(--accent)"> 全家店到店</label>'
     +'<input class="f-inp" id="mdFams" value="'+esc(shipS.fams||'')+'" placeholder="全家常用門市" style="font-size:11px">'
     +'</div></div>'
-    +'<div style="margin:10px 0"><button class="adm-save" id="mdSaveBtn">儲存會員資料</button></div>'
+    +'<div class="form-g"><label class="f-lbl">🔒 後台備註（僅你可見）</label><textarea class="f-inp" id="mdNote" rows="2" style="font-size:12px" placeholder="備註此會員的特殊需求…">'+esc(u.note||'')+'</textarea></div>'+'<div style="margin:10px 0"><button class="adm-save" id="mdSaveBtn">儲存會員資料</button></div>'
     +'<hr class="div">'+'<div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--adk)">🎟 優惠券<button class="bsm b-edit" style="margin-left:8px;padding:3px 9px;font-size:10px" onclick="openAddCpToMem()">＋ 發送優惠券</button></div>'+buildMemCpHtml(u)+'<hr class="div"><div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--adk)">訂單記錄 <span style="font-weight:400;color:var(--muted);font-size:10px">（點訂單號可跳轉）</span></div>'+oH;
   id('mdBody').innerHTML=body; id('mdOv').classList.add('open');
   // 儲存當前查看的 email 供優惠券操作使用
@@ -2316,6 +2392,8 @@ function saveMD(email){
     fam:id('mdFam').checked,
     fams:(id('mdFams').value||'').trim()
   };
+  // 後台備註
+  var mdNoteEl=id('mdNote'); if(mdNoteEl) u.note=mdNoteEl.value.trim();
   // 儲存到本地 + 同步 GS（含新 hash，顧客換裝置也能用新密碼）
   LS.set('hailey_users',users);
   if(pwChanged){
