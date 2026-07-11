@@ -1029,6 +1029,12 @@ function loadFB() {
     showSync('ok','已同步 ✅');
     buildCar(); buildCatBars(); renderProds(); renderAbout();
     var pbi=id('payBankInfo'); if(pbi) pbi.innerHTML='銀行代號：'+payInfo.bank+'<br>帳號：'+payInfo.acct;
+    // 若後台已開啟，重新渲染訂單和會員
+    if(id('admOv')&&id('admOv').classList.contains('open')){
+      renderAdmOrds(); renderAdmMems(); renderAdmProds();
+    }
+    // 若會員頁面已開啟，重新渲染訂單記錄
+    if(curPage==='member') renderMem();
   });
 }
 function pushToFB() {
@@ -1497,7 +1503,20 @@ function renderMem(){
   var s=me.ship||{};
   id('mFace').checked=s.face||false; id('m711').checked=s.s711||false;
   id('m711s').value=s.s711s||''; id('mFam').checked=s.fam||false; id('mFams').value=s.fams||'';
-  togStore(); renderMyOrds(); renderMyCps();
+  togStore(); renderMyCps();
+  // 每次進會員中心都從 GS 重新抓最新訂單
+  if(GS_URL){
+    var ordEl=id('myOrders');
+    if(ordEl) ordEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted)">載入中…</div>';
+    gsGet('hailey_orders', function(err, data){
+      if(!err && data && Array.isArray(data)){
+        orders=data; localStorage.setItem('hailey_orders',JSON.stringify(orders));
+      }
+      renderMyOrds();
+    });
+  } else {
+    renderMyOrds();
+  }
 }
 function memTab(tab){
   document.querySelectorAll('.mtab').forEach(function(b){ b.classList.remove('on'); });
@@ -1661,8 +1680,33 @@ function togUserMenu(){ var m=id('userMenu'); if(m) m.classList.toggle('open'); 
 function openAdm(){
   if(!me||(!me.admin&&me.email!=='admin@hailey.com')){ toast('僅限管理員'); return; }
   id('admOv').classList.add('open');
-  renderAdmProds(); renderAdmCar(); renderAdmCats(); loadAboutAdm(); loadSettings();
-  renderAdmMems(); renderAdmOrds(); renderAdmCps();
+  renderAdmProds(); renderAdmCar(); renderAdmCats(); loadAboutAdm(); loadSettings(); renderAdmCps();
+  // 從 GS 抓最新訂單和會員再渲染
+  if(GS_URL){
+    var ol=id('admOrdList'); if(ol) ol.innerHTML='<div style="color:var(--muted);padding:12px">載入中…</div>';
+    var ml=id('admMemList'); if(ml) ml.innerHTML='<div style="color:var(--muted);padding:12px">載入中…</div>';
+    gsGet('hailey_orders', function(err, data){
+      if(!err && data && Array.isArray(data)){
+        orders=data; localStorage.setItem('hailey_orders',JSON.stringify(orders));
+      }
+      renderAdmOrds();
+    });
+    gsGet('hailey_users', function(err, data){
+      if(!err && data && Array.isArray(data)){
+        // 合併：保留本地密碼
+        data.forEach(function(gsU){
+          if(gsU.admin) return;
+          var li=users.findIndex(function(u){ return u.email===gsU.email; });
+          if(li>-1){ var kp=users[li].pw; var kph=users[li].pwh; users[li]=Object.assign({},gsU,{pw:kp,pwh:kph}); }
+          else users.push(gsU);
+        });
+        localStorage.setItem('hailey_users',JSON.stringify(users));
+      }
+      renderAdmMems();
+    });
+  } else {
+    renderAdmOrds(); renderAdmMems();
+  }
 }
 function closeAdm(){ id('admOv').classList.remove('open'); document.body.style.overflow=''; }
 function admTab(tab){
