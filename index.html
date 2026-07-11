@@ -321,7 +321,7 @@ img{display:block;max-width:100%}
 .toast.vis{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── GEAR + LINE FLOAT + SYNC ── */
-.gear-btn{position:fixed;bottom:22px;right:16px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#2A2420;color:#fff;border:none;font-size:20px;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.35);transition:transform .2s;cursor:pointer}
+.gear-btn{position:fixed;bottom:22px;right:16px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#2A2420;color:#fff;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.35);transition:transform .2s;cursor:pointer}
 .gear-btn:hover{transform:rotate(30deg) scale(1.05)}
 .line-float{position:fixed;bottom:72px;right:14px;z-index:500;background:#06C755;color:#fff;border-radius:48px;display:flex;align-items:center;gap:6px;padding:8px 13px 8px 9px;box-shadow:0 4px 18px rgba(6,199,85,.4);font-size:11px;font-weight:700;transition:all .22s}
 .line-float:hover{transform:translateY(-2px)}
@@ -807,7 +807,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
 </div>
 
 <!-- ── GEAR + LINE + TOAST + SYNC ── -->
-<button class="gear-btn" id="gearBtn" onclick="openAdm()">⚙️</button>
+<button class="gear-btn" id="gearBtn" onclick="openAdm()" style="display:none">⚙️</button>
 <a class="line-float" href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.16 1.72 5.95 4.34 7.67L6 22l3.38-1.77C10.2 20.72 11.08 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
   聯絡客服
@@ -1517,19 +1517,19 @@ function doReg(){
 function loginOK(user){
   me=user; localStorage.setItem('hailey_sess',user.email);
   closeLogin(); updNavAuth();
-  if(user.admin){ var g=id('gearBtn'); if(g){ g.style.display='flex'; g.style.alignItems='center'; g.style.justifyContent='center'; } }
+  if(user.admin){ var g=id('gearBtn'); if(g) g.removeAttribute('style'); }
   toast('歡迎回來，'+(user.name||user.email)+' 👋');
   if(curPage==='member') renderMem();
 }
 function logout(){
   me=null; localStorage.removeItem('hailey_sess');
-  var g=id('gearBtn'); if(g) g.style.display='none'; updNavAuth();
+  var g=id('gearBtn'); if(g) g.setAttribute('style','display:none'); updNavAuth();
   if(curPage==='member') renderMem(); toast('已登出');
 }
 function restoreSess(){
   var email=localStorage.getItem('hailey_sess'); if(!email) return;
   var user=users.find(function(u){ return u.email===email; });
-  if(user){ me=user; updNavAuth(); if(user.admin){ var g=id('gearBtn'); if(g){ g.style.display='flex'; g.style.alignItems='center'; g.style.justifyContent='center'; } } }
+  if(user){ me=user; updNavAuth(); if(user.admin){ var g=id('gearBtn'); if(g) g.removeAttribute('style'); } }
   else localStorage.removeItem('hailey_sess');
 }
 function showLoginErr(msg){ var el=id('loginErr'); el.textContent=msg; el.style.display='block'; }
@@ -1537,7 +1537,17 @@ function updNavAuth(){
   var area=id('navAuth'); if(!area) return;
   if(me){
     var init=(me.name||me.email||'U')[0].toUpperCase();
-    area.innerHTML='<div class="nav-avatar" onclick="togUserMenu()">'+init+'</div><div class="user-menu" id="userMenu"><div class="umenu-email">'+esc(me.email)+'</div><button class="umenu-btn" onclick="goPage(\'member\');togUserMenu()">👤 會員中心</button><button class="umenu-btn danger" onclick="logout();togUserMenu()">登出</button></div>';
+    var adminRow=me.admin
+      ?'<button class="umenu-btn" style="color:var(--adk);font-weight:700;border-bottom:1px solid var(--border);margin-bottom:4px;padding-bottom:10px" onclick="openAdm();togUserMenu()">⚙️ 管理員後台</button>'
+      :'';
+    area.innerHTML=''
+      +'<div class="nav-avatar" onclick="togUserMenu()" style="'+(me.admin?'background:#9A7955':'')+'">'+init+'</div>'
+      +'<div class="user-menu" id="userMenu">'
+      +'<div class="umenu-email">'+esc(me.email)+(me.admin?' 👑':'')+'</div>'
+      +adminRow
+      +'<button class="umenu-btn" onclick="goPage(\'member\');togUserMenu()">👤 會員中心</button>'
+      +'<button class="umenu-btn danger" onclick="logout();togUserMenu()">登出</button>'
+      +'</div>';
   } else {
     area.innerHTML='<button class="nav-login" onclick="openLogin()">登入 / 註冊</button>';
   }
