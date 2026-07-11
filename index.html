@@ -782,7 +782,10 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         </div>
         <div class="form-g"><label class="f-lbl">Apps Script 部署網址</label><input class="f-inp" id="gsUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
         <button class="adm-save" onclick="saveGsUrl()">儲存網址</button>
-        <button class="bsm b-edit" style="padding:9px 13px;font-size:12px;margin-left:6px" onclick="testGsUrl()">測試連線</button>
+        <button class="bsm b-edit" style="padding:9px 13px;font-size:12px;margin-left:6px" onclick="testGsUrl()">測試讀取</button>
+        <button class="bsm b-edit" style="padding:9px 13px;font-size:12px;margin-left:6px" onclick="testGsWrite()">測試寫入</button>
+        <button class="bsm" style="padding:9px 13px;font-size:12px;margin-left:6px;background:#e8f5ed;color:var(--ok)" onclick="syncDesign()">☁️ 同步設計</button>
+        <div id="gsTestResult" style="margin-top:8px;font-size:12px;display:none;padding:8px;border-radius:var(--rs);background:#f5f5f5"></div>
       </div>
       <!-- MEMBERS -->
       <div class="adm-sec" id="adm-mems"><div id="admMemList"></div></div>
@@ -1121,13 +1124,28 @@ function loadFB() {
 // ── 合併 users：GS 的非管理員 user 全部接受，保留本地密碼 ──
 function mergeUsers(gsUsers) {
   var localAdmin = users.find(function(u){ return u.admin || u.email === 'admin@hailey.com'; });
-  // 全部用 GS 的，但補上本地的密碼
   var merged = gsUsers.filter(function(u){ return !u.admin; }).map(function(gsU){
     var local = users.find(function(u){ return u.email === gsU.email; });
-    if(local && (local.pw || local.pwh)){
-      return Object.assign({}, gsU, { pw: local.pw, pwh: local.pwh });
+    if(local && local.pw){
+      // 比較 local pw 的 hash 和 GS 的 pwh
+      // 如果 GS 的 pwh 不同於 local pw 的 hash，代表密碼在其他裝置被更新了
+      var localHash = hashPw(local.pw);
+      if(gsU.pwh && gsU.pwh !== localHash){
+        // GS 有更新的密碼 hash → 用 GS 的，清除 local 明文
+        return Object.assign({}, gsU, { pw: '', pwh: gsU.pwh });
+      }
+      // local 密碼是最新的
+      return Object.assign({}, gsU, { pw: local.pw, pwh: local.pwh || localHash });
     }
-    return gsU; // 新裝置，沒有本地密碼，用 pwh 驗證
+    if(local && local.pwh){
+      // local 只有 pwh（之前從 GS 讀的）
+      if(gsU.pwh && gsU.pwh !== local.pwh){
+        // GS 更新了 → 用 GS 的
+        return Object.assign({}, gsU);
+      }
+      return Object.assign({}, gsU, { pwh: local.pwh });
+    }
+    return gsU; // 全新裝置，完全用 GS 的
   });
   if(localAdmin) merged.unshift(localAdmin);
   users = merged;
@@ -1175,8 +1193,13 @@ function buildCar() {
     var slide=document.createElement('div');
     slide.className='car-slide';
     slide.onclick=(function(idx){ return function(){ carClick(idx); }; })(i);
-    var imgH=s.img?('<img class="car-slide-img" src="'+s.img+'" alt="'+esc(s.title)+'" onerror="this.style.display=\'none\'">'):'';
-    slide.innerHTML=imgH+'<div class="car-content"><div class="car-tag">'+esc(s.tag)+'</div><div class="car-title">'+esc(s.title)+'</div><div class="car-sub">'+esc(s.sub)+'</div><button class="car-btn" onclick="event.stopPropagation();carClick('+i+')">'+esc(s.btn)+'</button></div>';
+    var imgH=s.img?('<img class="car-slide-img" src="'+esc(s.img)+'" alt="" onerror="this.style.display=\'none\'">'):'';
+    var tagH=s.tag?('<div class="car-tag">'+esc(s.tag)+'</div>'):'';
+    var titleH=s.title?('<div class="car-title">'+esc(s.title)+'</div>'):'';
+    var subH=s.sub?('<div class="car-sub">'+esc(s.sub)+'</div>'):'';
+    var btnH=s.btn?('<button class="car-btn" onclick="event.stopPropagation();carClick('+i+')">'+esc(s.btn)+'</button>'):'';
+    var inner=tagH+titleH+subH+btnH;
+    slide.innerHTML=imgH+(inner?('<div class="car-content">'+inner+'</div>'):'' );
     track.appendChild(slide);
     var dot=document.createElement('button');
     dot.className='car-dot'+(i===0?' on':'');
@@ -2260,7 +2283,9 @@ document.addEventListener('click',function(e){
   }
   // Save member detail button
   if(e.target&&e.target.id==='mdSaveBtn'){
-    var emailEl=id('mdEmail'); if(emailEl) saveMD(emailEl.value);
+    var mdOvEl=id('mdOv');
+    var origEmail=mdOvEl?mdOvEl.dataset.email:'';
+    if(origEmail) saveMD(origEmail);
   }
   // Close user menu
   var um=id('userMenu');
@@ -2743,20 +2768,60 @@ function downloadWithUrl(){
   a.click();
   toast('已下載！請上傳到 GitHub 取代舊的 hailey-shop.html ✅');
 }
+function showGsResult(msg, ok){
+  var el=document.getElementById('gsTestResult');
+  if(!el) return;
+  el.style.display='block';
+  el.style.background=ok?'#e8f5e9':'#fde8e8';
+  el.style.color=ok?'#2e7d32':'#c62828';
+  el.textContent=msg;
+}
+function testGsWrite(){
+  var url=(document.getElementById('gsUrl').value||GS_URL||'').trim();
+  if(!url){ showGsResult('請先輸入並儲存網址',false); return; }
+  showGsResult('測試寫入中…',true);
+  fetch(url,{
+    method:'POST',
+    redirect:'follow',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({key:'hailey_design_test',value:{test:true,time:Date.now()}})
+  }).then(function(r){ return r.text(); })
+  .then(function(txt){
+    try{
+      var d=JSON.parse(txt);
+      if(d.ok!==false){ showGsResult('✅ 寫入成功！GS 可以正常接收資料',true); }
+      else { showGsResult('❌ GS 回傳錯誤：'+(d.error||txt.slice(0,100)),false); }
+    }catch(e){ showGsResult('❌ 回應格式錯誤：'+txt.slice(0,100),false); }
+  })
+  .catch(function(e){ showGsResult('❌ 連線失敗：'+e.message,false); });
+}
 function testGsUrl(){
   var url=(id('gsUrl').value||GS_URL||'').trim();
   if(!url){ toast('請先輸入並儲存網址'); return; }
-  showSync('spin','測試連線中…');
-  fetch(url+'?key=hailey_pay', {method:'GET', redirect:'follow'})
+  showSync('spin','測試中…');
+  showGsResult('讀取測試中…',true);
+  fetch(url+'?key=hailey_pay&t='+Date.now(), {method:'GET', redirect:'follow'})
     .then(function(r){ return r.text(); })
     .then(function(txt){
       try{
         var d=JSON.parse(txt);
-        if(d.ok!==false){ showSync('ok','連線成功 ✅'); toast('Google Sheets 連線正常 ✅ 正在載入資料…'); loadFB(); }
-        else{ showSync('err','Apps Script 回傳錯誤'); toast('Apps Script 錯誤：'+(d.error||'未知')); }
-      }catch(e){ showSync('err','回應格式錯誤'); toast('回應不是 JSON，請確認 Apps Script 設定（誰可以存取：所有人）'); }
+        if(d.ok!==false){ 
+          showSync('ok','讀取成功 ✅'); 
+          showGsResult('✅ 讀取成功！請再點「測試寫入」確認寫入也正常',true);
+          loadFB();
+        } else { 
+          showSync('err','錯誤'); 
+          showGsResult('❌ Apps Script 錯誤：'+(d.error||'未知'),false);
+        }
+      }catch(e){ 
+        showSync('err','格式錯誤'); 
+        showGsResult('❌ 回應不是 JSON：'+txt.slice(0,100)+'\n\n請確認部署時「誰可以存取」= 所有人',false);
+      }
     })
-    .catch(function(e){ showSync('err','連線失敗'); toast('連線失敗：'+e.message+' — 請確認部署時「誰可以存取」設為「所有人」'); });
+    .catch(function(e){ 
+      showSync('err','連線失敗'); 
+      showGsResult('❌ '+e.message+'\n\n常見原因：\n1. 網址不正確\n2. 部署時「誰可以存取」未設為「所有人」',false);
+    });
 }
 function loadGsSettings(){
   var saved=localStorage.getItem('hailey_gs_url');
@@ -2779,9 +2844,22 @@ function loadDesignAdmin(){
 }
 function syncDesign(){
   var d=LS.get('hailey_design',{});
-  if(!GS_URL){ toast('請先設定 Google Sheets 網址'); return; }
-  gsSet('hailey_design',d);
-  toast('設計已同步 ✅ 其他裝置重新整理後即套用');
+  if(!GS_URL){ toast('❌ 沒有 GS 網址：'+GS_URL); return; }
+  toast('同步中…');
+  fetch(GS_URL,{
+    method:'POST',
+    redirect:'follow',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({key:'hailey_design',value:d})
+  }).then(function(r){ return r.text(); })
+  .then(function(txt){
+    try{
+      var res=JSON.parse(txt);
+      if(res.ok!==false){ toast('✅ 設計已同步！其他裝置重新整理即套用'); }
+      else { toast('❌ GS 回傳錯誤：'+(res.error||txt.slice(0,60))); }
+    }catch(e){ toast('❌ 回應不是JSON：'+txt.slice(0,80)); }
+  })
+  .catch(function(e){ toast('❌ 連線失敗：'+e.message); });
 }
 function applyDesign(){
   var d=LS.get('hailey_design',{});
@@ -2796,8 +2874,15 @@ function saveDesign(key,val){
   d[key]=val;
   localStorage.setItem('hailey_design',JSON.stringify(d));
   applyDesign();
-  // 即時同步到 GS（不需要另外按同步按鈕）
-  gsSet('hailey_design',d);
+  // 即時推到 GS
+  if(GS_URL){
+    fetch(GS_URL,{
+      method:'POST',
+      redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({key:'hailey_design',value:d})
+    }).catch(function(e){ console.warn('design sync fail:',e.message); });
+  }
 }
 function resetDesign(){
   localStorage.removeItem('hailey_design');
