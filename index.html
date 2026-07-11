@@ -735,8 +735,8 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <div class="adm-form-title">📤 資料備份</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
           <button class="adm-save" onclick="exportData()" style="background:#2a5080">📤 匯出</button>
+          <button class="bsm b-edit" style="padding:9px 13px;font-size:12px" onclick="document.getElementById('exportBox').style.display='block'">顯示匯出</button>
           <button class="bsm b-edit" style="padding:9px 13px;font-size:12px" onclick="document.getElementById('importBox').style.display='block'">📥 匯入</button>
-          <button class="bsm" style="padding:9px 13px;font-size:12px;background:#e8f5ed;color:var(--ok)" onclick="pushToFB()">🔄 同步Firebase</button>
         </div>
         <div id="exportBox" style="display:none;margin-bottom:10px">
           <textarea id="exportTxt" class="f-inp" rows="3" readonly style="font-size:10px;font-family:monospace;word-break:break-all"></textarea>
@@ -751,24 +751,24 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <hr class="div">
         <div class="adm-form-title">🎨 設計樣式</div>
         <div id="designPanel">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.7">即時預覽，存檔後點「☁️ 同步」讓所有裝置套用。</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.7">調整後即時預覽，點「☁️ 同步」後所有裝置都套用。</div>
           <div style="font-weight:700;font-size:11px;color:var(--adk);margin-bottom:7px">🌈 整體顏色</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-            <div class="form-g"><label class="f-lbl">背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_bg" oninput="saveDesign('bg',this.value);id('d_bg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_bg_t" placeholder="#FAF8F5" oninput="saveDesign('bg',this.value);id('d_bg').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">主文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_txt" oninput="saveDesign('txt',this.value);id('d_txt_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_txt_t" placeholder="#2A2420" oninput="saveDesign('txt',this.value);id('d_txt').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">主題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_accent" oninput="saveDesign('accent',this.value);id('d_accent_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_accent_t" placeholder="#C4A882" oninput="saveDesign('accent',this.value);id('d_accent').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">深主題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_adk" oninput="saveDesign('adk',this.value);id('d_adk_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_adk_t" placeholder="#9A7955" oninput="saveDesign('adk',this.value);id('d_adk').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">次要文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_muted" oninput="saveDesign('muted',this.value);id('d_muted_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_muted_t" placeholder="#8C7B6E" oninput="saveDesign('muted',this.value);id('d_muted').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">框線色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_border" oninput="saveDesign('border',this.value);id('d_border_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_border_t" placeholder="#E8E2DC" oninput="saveDesign('border',this.value);id('d_border').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_bg" oninput="saveDesign('bg',this.value);document.getElementById('d_bg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_bg_t" placeholder="#FAF8F5" oninput="saveDesign('bg',this.value);document.getElementById('d_bg').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">主文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_txt" oninput="saveDesign('txt',this.value);document.getElementById('d_txt_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_txt_t" placeholder="#2A2420" oninput="saveDesign('txt',this.value);document.getElementById('d_txt').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">主題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_accent" oninput="saveDesign('accent',this.value);document.getElementById('d_accent_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_accent_t" placeholder="#C4A882" oninput="saveDesign('accent',this.value);document.getElementById('d_accent').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">深主題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_adk" oninput="saveDesign('adk',this.value);document.getElementById('d_adk_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_adk_t" placeholder="#9A7955" oninput="saveDesign('adk',this.value);document.getElementById('d_adk').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">次要文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_muted" oninput="saveDesign('muted',this.value);document.getElementById('d_muted_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_muted_t" placeholder="#8C7B6E" oninput="saveDesign('muted',this.value);document.getElementById('d_muted').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">框線色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_border" oninput="saveDesign('border',this.value);document.getElementById('d_border_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_border_t" placeholder="#E8E2DC" oninput="saveDesign('border',this.value);document.getElementById('d_border').value=this.value" style="flex:1;font-size:11px"></div></div>
           </div>
           <div style="font-weight:700;font-size:11px;color:var(--adk);margin-bottom:7px">🎠 輪播圖文字</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-            <div class="form-g"><label class="f-lbl">標題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTitle" oninput="saveDesign('carTitle',this.value);id('d_carTitle_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTitle_t" placeholder="#2A2420" oninput="saveDesign('carTitle',this.value);id('d_carTitle').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">副標題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carSub" oninput="saveDesign('carSub',this.value);id('d_carSub_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carSub_t" placeholder="#8C7B6E" oninput="saveDesign('carSub',this.value);id('d_carSub').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">標籤背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTagBg" oninput="saveDesign('carTagBg',this.value);id('d_carTagBg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTagBg_t" placeholder="#C4A882" oninput="saveDesign('carTagBg',this.value);id('d_carTagBg').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">標籤文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTagColor" oninput="saveDesign('carTagColor',this.value);id('d_carTagColor_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTagColor_t" placeholder="#ffffff" oninput="saveDesign('carTagColor',this.value);id('d_carTagColor').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">按鈕背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carBtnBg" oninput="saveDesign('carBtnBg',this.value);id('d_carBtnBg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carBtnBg_t" placeholder="#C4A882" oninput="saveDesign('carBtnBg',this.value);id('d_carBtnBg').value=this.value" style="flex:1;font-size:11px"></div></div>
-            <div class="form-g"><label class="f-lbl">按鈕文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carBtnColor" oninput="saveDesign('carBtnColor',this.value);id('d_carBtnColor_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carBtnColor_t" placeholder="#ffffff" oninput="saveDesign('carBtnColor',this.value);id('d_carBtnColor').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">標題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTitle" oninput="saveDesign('carTitle',this.value);document.getElementById('d_carTitle_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTitle_t" placeholder="#2A2420" oninput="saveDesign('carTitle',this.value);document.getElementById('d_carTitle').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">副標題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carSub" oninput="saveDesign('carSub',this.value);document.getElementById('d_carSub_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carSub_t" placeholder="#8C7B6E" oninput="saveDesign('carSub',this.value);document.getElementById('d_carSub').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">標籤背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTagBg" oninput="saveDesign('carTagBg',this.value);document.getElementById('d_carTagBg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTagBg_t" placeholder="#C4A882" oninput="saveDesign('carTagBg',this.value);document.getElementById('d_carTagBg').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">標籤文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTagColor" oninput="saveDesign('carTagColor',this.value);document.getElementById('d_carTagColor_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTagColor_t" placeholder="#ffffff" oninput="saveDesign('carTagColor',this.value);document.getElementById('d_carTagColor').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">按鈕背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carBtnBg" oninput="saveDesign('carBtnBg',this.value);document.getElementById('d_carBtnBg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carBtnBg_t" placeholder="#C4A882" oninput="saveDesign('carBtnBg',this.value);document.getElementById('d_carBtnBg').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">按鈕文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carBtnColor" oninput="saveDesign('carBtnColor',this.value);document.getElementById('d_carBtnColor_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carBtnColor_t" placeholder="#ffffff" oninput="saveDesign('carBtnColor',this.value);document.getElementById('d_carBtnColor').value=this.value" style="flex:1;font-size:11px"></div></div>
           </div>
           <div style="display:flex;gap:7px;flex-wrap:wrap">
             <button class="adm-save" onclick="syncDesign()">☁️ 同步到所有裝置</button>
@@ -778,16 +778,12 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <hr class="div">
         <div class="adm-form-title">🔗 Google Sheets 設定</div>
         <div style="background:#e8f0fe;border:1px solid #c5ddf9;border-radius:var(--rs);padding:11px;margin-bottom:10px;font-size:11px;color:#2a5080;line-height:1.8">
-          商品資料同步到 Google 試算表，所有人開網頁都看得到你改的內容。<br>
-          請照說明文件設定 Apps Script 後，將部署網址貼在下方。
+          商品資料同步到 Google 試算表，所有人開網頁都看得到你改的內容。
         </div>
         <div class="form-g"><label class="f-lbl">Apps Script 部署網址</label><input class="f-inp" id="gsUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
         <button class="adm-save" onclick="saveGsUrl()">儲存網址</button>
         <button class="bsm b-edit" style="padding:9px 13px;font-size:12px;margin-left:6px" onclick="testGsUrl()">測試連線</button>
-
-        </div>
       </div>
-
       <!-- MEMBERS -->
       <div class="adm-sec" id="adm-mems"><div id="admMemList"></div></div>
 
@@ -797,14 +793,35 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <div class="adm-form" id="newOrdForm">
           <div class="adm-form-title">幫客戶建立訂單</div>
           <div class="adm-fgrid">
-            <div class="form-g"><label class="f-lbl">會員 Email</label><select class="f-inp" id="noEmail"></select></div>
-            <div class="form-g"><label class="f-lbl">備註</label><input class="f-inp" id="noNote" placeholder="選填備註"></div>
+            <div class="form-g"><label class="f-lbl">會員</label><select class="f-inp" id="noEmail"></select></div>
+            <div class="form-g"><label class="f-lbl">訂單狀態</label><select class="f-inp" id="noStatus"><option value="待確認">待確認</option><option value="已確認" selected>已確認</option><option value="出貨中">出貨中</option><option value="已完成">已完成</option></select></div>
           </div>
-          <div id="noItemsList" style="margin-top:8px"></div>
-          <button class="bsm b-edit" onclick="addNoItem()" style="padding:7px 13px;font-size:12px;margin:6px 0">＋ 加入品項</button>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:6px">（此訂單品項不會顯示在商品頁面）</div>
-          <button class="adm-save" onclick="submitAdmOrd()">建立訂單</button>
-          <button class="adm-cancel" onclick="document.getElementById('newOrdForm').classList.remove('vis')">取消</button>
+          <div class="adm-fgrid" style="margin-top:4px">
+            <div class="form-g"><label class="f-lbl">寄送方式</label><select class="f-inp" id="noShip" onchange="noShipChange()"><option value="face">🤝 面交（限桃園區）</option><option value="711">📦 7-11 店到店 +$60</option><option value="fam">📦 全家店到店 +$60</option></select></div>
+            <div class="form-g"><label class="f-lbl">門市名稱（選填）</label><input class="f-inp" id="noStore" placeholder="例：桃園元富門市"></div>
+          </div>
+          <div class="adm-fgrid" style="margin-top:4px">
+            <div class="form-g"><label class="f-lbl">付款銀行</label><input class="f-inp" id="noPayBank" placeholder="例：中國信託"></div>
+            <div class="form-g"><label class="f-lbl">帳號後五碼</label><input class="f-inp" id="noCode" placeholder="12345" maxlength="5"></div>
+          </div>
+          <div class="adm-fgrid" style="margin-top:4px">
+            <div class="form-g"><label class="f-lbl">折價券</label><select class="f-inp" id="noCpSel" onchange="noCalcTotal()"><option value="">不使用</option></select></div>
+            <div class="form-g"><label class="f-lbl">備註</label><input class="f-inp" id="noNote" placeholder="備註（顧客可見）"></div>
+          </div>
+          <div style="margin-top:10px;margin-bottom:6px;font-weight:700;font-size:12px;color:var(--adk)">品項</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="bsm b-edit" onclick="addNoItem('custom')" style="padding:7px 13px;font-size:12px">＋ 自訂品項</button>
+            <button class="bsm b-view" onclick="addNoItem('product')" style="padding:7px 13px;font-size:12px">＋ 從商品頁選</button>
+          </div>
+          <div id="noItemsList"></div>
+          <div style="margin-top:10px;padding:10px 12px;background:var(--alt);border-radius:var(--rs);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--muted)">運費: <span id="noShipFeeLabel">免費</span>　折扣: <span id="noDiscLabel">無</span></span>
+            <span style="font-weight:700;font-size:15px">總計 <span id="noTotal" style="color:var(--adk)">$0</span></span>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="adm-save" onclick="submitAdmOrd()">建立訂單</button>
+            <button class="adm-cancel" onclick="document.getElementById('newOrdForm').classList.remove('vis')">取消</button>
+          </div>
         </div>
         <div id="admOrdList" style="margin-top:10px"></div>
       </div>
@@ -1660,8 +1677,20 @@ function renderMyOrds(){
   if(!myO.length){ el.innerHTML='<div style="text-align:center;padding:36px;color:var(--muted)"><div style="font-size:28px;margin-bottom:6px">📦</div>尚無購買記錄</div>'; return; }
   var html='';
   myO.slice().reverse().forEach(function(o){
-    var iH=(o.items||[]).map(function(item){ return '<div class="ord-row"><span>'+esc(item.name)+(item.spec?' ('+esc(item.spec)+')':'')+' × '+(item.qty||1)+'</span><span>$'+((Number(item.unitPrice)||0)*(Number(item.qty)||1)).toLocaleString()+'</span></div>'; }).join('');
-    html+='<div class="ord-card"><div class="ord-hdr"><div><div class="ord-id">'+esc(o.id)+'</div><div class="ord-date">'+esc(o.date)+'</div></div><span class="ord-status">'+esc(o.status||'待確認')+'</span></div>'+iH+'<div class="ord-total-row"><span>總計</span><span>$'+(Number(o.total)||0).toLocaleString()+'</span></div></div>';
+    var iH=(o.items||[]).map(function(item){
+      return '<div class="ord-row"><span>'+esc(item.name)+(item.spec?' ('+esc(item.spec)+')':'')+' × '+(item.qty||1)+'</span><span>$'+((Number(item.unitPrice)||0)*(Number(item.qty)||1)).toLocaleString()+'</span></div>';
+    }).join('');
+    var shipLabel=o.shipping==='face'?'🤝 面交':o.shipping==='711'?'📦 7-11 店到店':o.shipping==='fam'?'📦 全家店到店':(o.shipping||'');
+    var extraH='';
+    if(shipLabel) extraH+='<div style="font-size:11px;color:var(--muted);margin-top:4px">'+esc(shipLabel)+(o.store?' — '+esc(o.store):'')+'</div>';
+    if(o.cpCode&&o.cpDisc) extraH+='<div style="font-size:11px;color:var(--ok);margin-top:2px">🎟 折價券：'+esc(o.cpCode)+' (-$'+o.cpDisc+')</div>';
+    if(o.note) extraH+='<div style="font-size:11px;color:var(--muted);margin-top:2px">備註：'+esc(o.note)+'</div>';
+    if(o.adminCreated) extraH+='<div style="font-size:10px;color:var(--accent);margin-top:2px">由管理員建立</div>';
+    html+='<div class="ord-card">'
+      +'<div class="ord-hdr"><div><div class="ord-id">'+esc(o.id)+'</div><div class="ord-date">'+esc(o.date)+'</div></div><span class="ord-status">'+esc(o.status||'待確認')+'</span></div>'
+      +iH+extraH
+      +'<div class="ord-total-row"><span>總計</span><span>$'+(Number(o.total)||0).toLocaleString()+'</span></div>'
+      +'</div>';
   });
   el.innerHTML=html;
 }
@@ -2411,28 +2440,186 @@ function addOrdItem(btn,fromProduct){
 // (merged into new order admin functions above)
 // Admin new order
 var noItems=[];
-function showNewOrdForm(){ id('newOrdForm').classList.add('vis'); noItems=[]; id('noItemsList').innerHTML=''; }
-function addNoItem(){
-  noItems.push({name:'',spec:'',qty:1,unitPrice:0});
-  var i=noItems.length-1;
+var noItemCount=0;
+
+function showNewOrdForm(){
+  id('newOrdForm').classList.add('vis');
+  noItems=[]; noItemCount=0; id('noItemsList').innerHTML='';
+  // 填充折價券選單
+  var cpSel=id('noCpSel');
+  if(cpSel){
+    cpSel.innerHTML='<option value="">不使用</option>';
+    coupons.forEach(function(c){ cpSel.innerHTML+='<option value="'+esc(c.code)+'">'+esc(c.code)+' ('+(c.type==='percent'?c.val+'% OFF':'折$'+c.val)+')</option>'; });
+  }
+  // 填充會員選單
+  var ne=id('noEmail'); if(ne){ ne.innerHTML=''; users.filter(function(u){ return !u.admin; }).forEach(function(u){ ne.innerHTML+='<option value="'+esc(u.email)+'">'+esc(u.name||u.email)+' ('+esc(u.email)+')</option>'; }); }
+  noCalcTotal();
+  id('newOrdForm').scrollIntoView({behavior:'smooth'});
+}
+
+function noShipChange(){ noCalcTotal(); }
+
+function noCalcTotal(){
+  var sub=noItems.reduce(function(s,it){ return s+(Number(it.unitPrice)||0)*(Number(it.qty)||1); },0);
+  var ship=id('noShip')&&id('noShip').value!=='face'?60:0;
+  var disc=0;
+  var cpCode=id('noCpSel')?id('noCpSel').value:'';
+  if(cpCode){
+    var cp=coupons.find(function(c){ return c.code===cpCode; });
+    if(cp) disc=cp.type==='percent'?Math.round(sub*cp.val/100):(Number(cp.val)||0);
+  }
+  var tot=Math.max(0,sub+ship-disc);
+  var sf=id('noShipFeeLabel'); if(sf) sf.textContent=ship?'$'+ship:'免費';
+  var dl=id('noDiscLabel'); if(dl) dl.textContent=disc?'-$'+disc:'無';
+  var tt=id('noTotal'); if(tt) tt.textContent='$'+tot.toLocaleString();
+}
+
+function addNoItem(mode){
+  var i=noItemCount++;
   var div=document.createElement('div');
-  div.style.cssText='display:flex;gap:6px;align-items:flex-end;margin-bottom:6px;flex-wrap:wrap';
-  div.innerHTML='<div class="form-g" style="margin:0;flex:2;min-width:80px"><label class="f-lbl">品項名稱</label><input class="f-inp" id="noi_name'+i+'" placeholder="商品名稱"></div><div class="form-g" style="margin:0;flex:1;min-width:60px"><label class="f-lbl">規格</label><input class="f-inp" id="noi_spec'+i+'" placeholder="規格（選填）"></div><div class="form-g" style="margin:0;min-width:50px"><label class="f-lbl">數量</label><input class="f-inp" id="noi_qty'+i+'" type="number" value="1" min="1" style="width:60px"></div><div class="form-g" style="margin:0;min-width:60px"><label class="f-lbl">單價</label><input class="f-inp" id="noi_price'+i+'" type="number" value="0" style="width:80px"></div><button class="bsm b-del" style="margin-bottom:1px" onclick="this.parentElement.remove()">✕</button>';
+  div.className='no-item-row';
+  div.style.cssText='background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:10px;margin-bottom:8px';
+  div.dataset.idx=i;
+
+  if(mode==='product'){
+    // 從商品頁選
+    var prodOpts=prods.map(function(p,pi){ return '<option value="'+pi+'">'+esc(p.name)+' ('+priceStr(p)+')</option>'; }).join('');
+    div.innerHTML='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end">'
+      +'<div class="form-g" style="margin:0;flex:2;min-width:120px"><label class="f-lbl">選擇商品</label><select class="f-inp no-prod-sel" style="font-size:12px" onchange="noSelProd(this,'+i+')">'
+      +'<option value="">請選擇商品…</option>'+prodOpts+'</select></div>'
+      +'<div class="form-g" style="margin:0;flex:1;min-width:80px"><label class="f-lbl">規格</label><select class="f-inp no-spec-sel" id="no_spec'+i+'" style="font-size:12px" onchange="noSelSpec(this,'+i+')"><option value="">請先選商品</option></select></div>'
+      +'<div class="form-g" style="margin:0;min-width:55px"><label class="f-lbl">數量</label><input class="f-inp no-qty" id="no_qty'+i+'" type="number" value="1" min="1" style="width:60px" oninput="noUpdItem('+i+',this)"></div>'
+      +'<div class="form-g" style="margin:0;min-width:70px"><label class="f-lbl">單價</label><input class="f-inp no-price" id="no_price'+i+'" type="number" value="0" style="width:80px" oninput="noUpdItemPrice('+i+',this)"></div>'
+      +'<button class="bsm b-del" style="margin-bottom:2px" onclick="noDelItem(this,'+i+')">✕</button>'
+      +'</div>'
+      +'<input type="hidden" id="no_name'+i+'" value="">'
+      +'<div id="no_info'+i+'" style="font-size:11px;color:var(--muted);margin-top:4px"></div>';
+    noItems.push({name:'',spec:'',qty:1,unitPrice:0,fromProd:true});
+  } else {
+    // 自訂品項
+    div.innerHTML='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end">'
+      +'<div class="form-g" style="margin:0;flex:2;min-width:100px"><label class="f-lbl">品項名稱</label><input class="f-inp" id="no_name'+i+'" placeholder="商品名稱" oninput="noItems['+i+'].name=this.value"></div>'
+      +'<div class="form-g" style="margin:0;flex:1;min-width:70px"><label class="f-lbl">規格</label><input class="f-inp" id="no_spec_t'+i+'" placeholder="規格（選填）" oninput="noItems['+i+'].spec=this.value"></div>'
+      +'<div class="form-g" style="margin:0;min-width:55px"><label class="f-lbl">數量</label><input class="f-inp" id="no_qty'+i+'" type="number" value="1" min="1" style="width:60px" oninput="noUpdItem('+i+',this)"></div>'
+      +'<div class="form-g" style="margin:0;min-width:70px"><label class="f-lbl">單價</label><input class="f-inp" id="no_price'+i+'" type="number" value="0" style="width:80px" oninput="noUpdItemPrice('+i+',this)"></div>'
+      +'<button class="bsm b-del" style="margin-bottom:2px" onclick="noDelItem(this,'+i+')">✕</button>'
+      +'</div>';
+    noItems.push({name:'',spec:'',qty:1,unitPrice:0,fromProd:false});
+  }
   id('noItemsList').appendChild(div);
 }
-function submitAdmOrd(){
-  var email=id('noEmail').value; var note=id('noNote').value;
-  var items=[]; var nodes=id('noItemsList').children;
-  for(var i=0;i<noItems.length;i++){
-    var nm=id('noi_name'+i); var sp=id('noi_spec'+i); var qty=id('noi_qty'+i); var pr=id('noi_price'+i);
-    if(!nm) continue; if(!nm.value.trim()) continue;
-    items.push({name:nm.value.trim(),spec:sp?sp.value.trim():'',qty:parseInt((qty?qty.value:1)||1,10),unitPrice:Number((pr?pr.value:0)||0)});
+
+function noSelProd(sel,i){
+  var pi=parseInt(sel.value,10);
+  if(isNaN(pi)||!prods[pi]){ noItems[i]={name:'',spec:'',qty:1,unitPrice:0,fromProd:true}; noCalcTotal(); return; }
+  var p=prods[pi];
+  noItems[i].name=p.name;
+  // 更新規格下拉
+  var specSel=document.getElementById('no_spec'+i);
+  if(specSel){
+    var specs=parseSpecs(p.specs);
+    if(specs.length>0){
+      specSel.innerHTML=specs.map(function(s,si){ return '<option value="'+si+'">'+esc(s.name)+(s.price!==null?' — $'+s.price:'')+'</option>'; }).join('');
+      var firstSpec=specs[0];
+      noItems[i].spec=firstSpec.name;
+      noItems[i].unitPrice=firstSpec.price!==null?firstSpec.price:(Number(p.price)||0);
+    } else {
+      specSel.innerHTML='<option value="-1">（無規格）</option>';
+      noItems[i].spec='';
+      noItems[i].unitPrice=Number(p.price)||0;
+    }
+    var priceInp=document.getElementById('no_price'+i);
+    if(priceInp) priceInp.value=noItems[i].unitPrice;
   }
+  var nameInp=document.getElementById('no_name'+i);
+  if(nameInp) nameInp.value=p.name;
+  var info=document.getElementById('no_info'+i);
+  if(info) info.textContent=p.name+(p.sub?' · '+p.sub:'');
+  noCalcTotal();
+}
+
+function noSelSpec(sel,i){
+  if(!noItems[i]) return;
+  var pi=sel.closest('.no-item-row')?parseInt(sel.closest('.no-item-row').dataset.idx,10):i;
+  // Find the product
+  var prodSel=sel.closest('.no-item-row').querySelector('.no-prod-sel');
+  if(!prodSel) return;
+  var prodIdx=parseInt(prodSel.value,10);
+  if(isNaN(prodIdx)||!prods[prodIdx]) return;
+  var p=prods[prodIdx];
+  var specs=parseSpecs(p.specs);
+  var si=parseInt(sel.value,10);
+  if(!isNaN(si)&&specs[si]){
+    noItems[i].spec=specs[si].name;
+    noItems[i].unitPrice=specs[si].price!==null?specs[si].price:(Number(p.price)||0);
+    var priceInp=document.getElementById('no_price'+i);
+    if(priceInp) priceInp.value=noItems[i].unitPrice;
+  }
+  noCalcTotal();
+}
+
+function noUpdItem(i,inp){
+  if(!noItems[i]) return;
+  noItems[i].qty=Math.max(1,parseInt(inp.value,10)||1);
+  noCalcTotal();
+}
+function noUpdItemPrice(i,inp){
+  if(!noItems[i]) return;
+  noItems[i].unitPrice=Number(inp.value)||0;
+  noCalcTotal();
+}
+function noDelItem(btn,i){
+  btn.closest('.no-item-row').remove();
+  noItems[i]={deleted:true};
+  noCalcTotal();
+}
+
+function submitAdmOrd(){
+  var email=id('noEmail').value;
+  if(!email){ toast('請選擇會員'); return; }
+  var ship=id('noShip').value;
+  var store=(id('noStore').value||'').trim();
+  var payBank=(id('noPayBank').value||'').trim();
+  var code=(id('noCode').value||'').trim();
+  var note=(id('noNote').value||'').trim();
+  var status=id('noStatus').value||'已確認';
+  var cpCode=id('noCpSel').value||'';
+  var u=users.find(function(x){ return x.email===email; });
+  var uName=u?u.name||email:email;
+
+  var items=noItems.filter(function(it){ return !it.deleted&&it.name&&it.name.trim(); });
   if(!items.length){ toast('請至少加入一個品項'); return; }
-  var tot=items.reduce(function(s,it){ return s+it.unitPrice*it.qty; },0);
-  var ord={id:'ADM'+Date.now(),date:new Date().toLocaleDateString('zh-TW'),email:email,name:email,items:items,shipping:'admin',store:'',code:'',bank:'管理員建立',sub:tot,shipFee:0,cpCode:'',cpDisc:0,total:tot,status:'已確認',note:note,adminCreated:true};
-  orders.push(ord); LS.set('hailey_orders',orders); noItems=[];
-  id('newOrdForm').classList.remove('vis'); id('noItemsList').innerHTML=''; renderAdmOrds(); toast('訂單已建立 ✅');
+
+  var sub=items.reduce(function(s,it){ return s+(Number(it.unitPrice)||0)*(Number(it.qty)||1); },0);
+  var shipFee=ship!=='face'?60:0;
+  var cpDisc=0;
+  if(cpCode){
+    var cp=coupons.find(function(c){ return c.code===cpCode; });
+    if(cp) cpDisc=cp.type==='percent'?Math.round(sub*cp.val/100):(Number(cp.val)||0);
+  }
+  var tot=Math.max(0,sub+shipFee-cpDisc);
+
+  var ord={
+    id:'ADM'+Date.now(),
+    date:new Date().toLocaleDateString('zh-TW'),
+    email:email, name:uName,
+    items:items.map(function(it){ return {name:it.name,spec:it.spec||'',qty:Number(it.qty)||1,unitPrice:Number(it.unitPrice)||0}; }),
+    shipping:ship, store:store,
+    payBank:payBank, code:code,
+    bank:payInfo.bank,
+    sub:sub, shipFee:shipFee,
+    cpCode:cpCode, cpDisc:cpDisc,
+    total:tot, status:status,
+    note:note, adminCreated:true
+  };
+
+  orders.push(ord);
+  LS.set('hailey_orders',orders);
+  noItems=[]; noItemCount=0;
+  id('newOrdForm').classList.remove('vis');
+  id('noItemsList').innerHTML='';
+  renderAdmOrds();
+  toast('訂單已建立 ✅ 顧客的會員中心也看得到');
 }
 
 // ── COUPONS ADMIN ──
