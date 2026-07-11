@@ -2048,9 +2048,61 @@ function viewMem(email){
     +'<input class="f-inp" id="mdFams" value="'+esc(shipS.fams||'')+'" placeholder="全家常用門市" style="font-size:11px">'
     +'</div></div>'
     +'<div style="margin:10px 0"><button class="adm-save" id="mdSaveBtn">儲存會員資料</button></div>'
-    +'<hr class="div"><div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--adk)">訂單記錄 <span style="font-weight:400;color:var(--muted);font-size:10px">（點訂單號可跳轉）</span></div>'+oH;
+    +'<hr class="div">'+'<div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--adk)">🎟 優惠券<button class="bsm b-edit" style="margin-left:8px;padding:3px 9px;font-size:10px" onclick="openAddCpToMem()">＋ 發送優惠券</button></div>'+buildMemCpHtml(u)+'<hr class="div"><div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--adk)">訂單記錄 <span style="font-weight:400;color:var(--muted);font-size:10px">（點訂單號可跳轉）</span></div>'+oH;
   id('mdBody').innerHTML=body; id('mdOv').classList.add('open');
+  // 儲存當前查看的 email 供優惠券操作使用
+  id('mdOv').dataset.email = email;
 }
+// ── 會員優惠券 HTML 建構 ──
+function buildMemCpHtml(u){
+  var codes = u.coupons || [];
+  if(!codes.length) return '<div style="font-size:12px;color:var(--muted);padding:4px 0 8px">尚無優惠券</div>';
+  var h = '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">';
+  codes.forEach(function(code){
+    var cp = coupons.find(function(c){ return c.code===code; });
+    var expired = cp && cp.exp && new Date(cp.exp)<new Date();
+    var used = cp && cp.usage==='once' && (cp.usedBy||[]).indexOf(u.email)>-1;
+    var status = expired?'已到期':used?'已使用':'未使用';
+    var statusColor = expired||used?'#aaa':'var(--ok)';
+    var discText = cp?(cp.type==='percent'?cp.val+'% OFF':'折 $'+cp.val):'（已刪除）';
+    h += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#faf8f5;border-radius:var(--rs);border:1px solid var(--border)">'
+      + '<span style="font-family:monospace;font-weight:700;color:var(--adk);min-width:80px">'+esc(code)+'</span>'
+      + '<span style="font-size:12px;flex:1">'+esc(discText)+'</span>'
+      + '<span style="font-size:11px;font-weight:600;color:'+statusColor+'">'+status+'</span>'
+      + '<button class="bsm b-del" style="font-size:10px;padding:2px 7px" data-email="'+esc(u.email)+'" data-code="'+esc(code)+'" onclick="removeCpFromMem(this)">移除</button>'
+      + '</div>';
+  });
+  h += '</div>';
+  return h;
+}
+function removeCpFromMem(btn){
+  var email = btn.dataset.email;
+  var code = btn.dataset.code;
+  var u = users.find(function(x){ return x.email===email; }); if(!u) return;
+  u.coupons = (u.coupons||[]).filter(function(c){ return c!==code; });
+  LS.set('hailey_users', users);
+  toast('已移除優惠券 '+code);
+  viewMem(email); // 重新渲染
+}
+function openAddCpToMem(){
+  var mdOv = id('mdOv');
+  var email = mdOv ? mdOv.dataset.email : '';
+  if(!email){ toast('找不到會員'); return; }
+  if(!coupons.length){ toast('尚未建立任何優惠券'); return; }
+  var opts = coupons.map(function(c,i){ return i+'. '+c.code+' ('+( c.type==='percent'?c.val+'% OFF':'折$'+c.val)+')'; }).join('\n');
+  var sel = prompt('選擇要發送的優惠券（輸入編號）：\n'+opts);
+  if(sel===null||sel==='') return;
+  var ci = parseInt(sel,10);
+  var cp = coupons[ci]; if(!cp){ toast('找不到此優惠券'); return; }
+  var u = users.find(function(x){ return x.email===email; }); if(!u) return;
+  if(!u.coupons) u.coupons=[];
+  if(u.coupons.indexOf(cp.code)>-1){ toast('此會員已有此優惠券'); return; }
+  u.coupons.push(cp.code);
+  LS.set('hailey_users', users);
+  toast('已發送「'+cp.code+'」給 '+esc(u.name||email)+' ✅');
+  viewMem(email);
+}
+
 function jumpToOrd(oid){
   closeMD();
   setTimeout(function(){
@@ -2154,7 +2206,15 @@ function renderAdmOrds(){
       +'<div style="margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+'<label style="font-size:11px;font-weight:700;color:var(--muted)">📦 寄送方式</label>'+'<select class="f-inp" style="font-size:11px;padding:3px 6px;width:auto" onchange="updOrdShip(this)">'+'<option value="face"'+(o.shipping==='face'?' selected':'')+'>面交（桃園區）</option>'+'<option value="711"'+(o.shipping==='711'?' selected':'')+'>7-11 店到店</option>'+'<option value="fam"'+(o.shipping==='fam'?' selected':'')+'>全家店到店</option>'+'</select>'+'<input class="f-inp" style="font-size:11px;padding:3px 6px;flex:1;min-width:100px" value="'+esc(o.store||'')+'" placeholder="門市名稱（選填）" oninput="updOrdStore(this)" data-oid="'+esc(o.id)+'">'+'</div>'
       +(o.note?('<div style="font-size:11px;color:var(--muted);margin-top:2px">📋 客戶備註：'+esc(o.note)+'</div>'):'')
       +(o.payBank?('<div style="font-size:11px;color:var(--muted);margin-top:2px">💳 '+esc(o.payBank)+' / 後五碼：'+esc(o.code||'')+'</div>'):'')
-      +'<div style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)"><label style="font-size:10px;font-weight:700;color:var(--adk)">🔒 後台備註（僅我可見）</label><input class="f-inp" style="font-size:11px;margin-top:3px;padding:5px 8px;background:#fffbf0" value="'+esc(o.adminNote||'')+'" placeholder="後台備註…" oninput="saveAdminNote(this)" data-oid="'+esc(o.id)+'"></div>'
+      +'<div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0;border-top:1px dashed var(--border)">'
+      +'<label style="font-size:10px;font-weight:700;color:var(--adk);flex-shrink:0">🎟 折價券</label>'
+      +'<select class="f-inp" style="font-size:11px;padding:3px 6px;width:auto;flex:1;min-width:100px" onchange="updOrdCoupon(this)">'
+      +'<option value="">無折價券</option>'
+      +coupons.map(function(c){ return '<option value="'+esc(c.code)+'"'+(o.cpCode===c.code?' selected':'')+'>'+esc(c.code)+' ('+(c.type==='percent'?c.val+'% OFF':'折$'+c.val)+')</option>'; }).join('')
+      +'</select>'
+      +(o.cpCode?('<span style="font-size:11px;color:var(--ok);flex-shrink:0">已折 $'+(o.cpDisc||0)+'</span>'):'')
+      +'</div>'
+      +'<div style="padding-top:4px"><label style="font-size:10px;font-weight:700;color:var(--adk)">🔒 後台備註（僅我可見）</label><input class="f-inp" style="font-size:11px;margin-top:3px;padding:5px 8px;background:#fffbf0" value="'+esc(o.adminNote||'')+'" placeholder="後台備註…" oninput="saveAdminNote(this)" data-oid="'+esc(o.id)+'"></div>'
       +'<div class="ord-total-row"><span>總計</span><span class="ord-tot-val">$'+(Number(o.total)||0).toLocaleString()+'</span></div></div>';
   });
   list.innerHTML=html;
@@ -2180,6 +2240,33 @@ function updOrdStore(inp){
 }
 
 
+function updOrdCoupon(sel){
+  var card=sel.closest('[data-oid]'); if(!card) return;
+  var oid=card.dataset.oid;
+  var o=orders.find(function(x){ return x.id===oid; }); if(!o) return;
+  var code=sel.value;
+  if(!code){
+    // 移除折價券
+    o.cpCode=''; o.cpDisc=0;
+  } else {
+    var cp=coupons.find(function(c){ return c.code===code; });
+    if(!cp){ toast('找不到此優惠券'); return; }
+    // 重算折扣
+    var sub=( o.items||[]).reduce(function(s,it){ return s+(Number(it.unitPrice)||0)*(Number(it.qty)||1); },0);
+    o.cpCode=code;
+    o.cpDisc=cp.type==='percent'?Math.round(sub*cp.val/100):(Number(cp.val)||0);
+  }
+  // 重算總金額
+  var sub2=(o.items||[]).reduce(function(s,it){ return s+(Number(it.unitPrice)||0)*(Number(it.qty)||1); },0);
+  var ship=o.shipFee||0;
+  o.total=Math.max(0, sub2+ship-(o.cpDisc||0));
+  LS.set('hailey_orders',orders);
+  // 更新顯示
+  var totEl=card.querySelector('.ord-tot-val');
+  if(totEl) totEl.textContent='$'+o.total.toLocaleString();
+  toast(code?('已套用折價券 '+code+'，折 $'+o.cpDisc):'已移除折價券');
+  renderAdmOrds(); // 重新渲染讓折扣金額更新
+}
 function saveAdminNote(inp){
   var oid=inp.dataset.oid;
   if(!oid){ var card=inp.closest('[data-oid]'); if(card) oid=card.dataset.oid; }
