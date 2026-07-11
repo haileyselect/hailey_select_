@@ -118,10 +118,10 @@ img{display:block;max-width:100%}
 .pcard-price{font-size:12px;font-weight:700;color:var(--adk)}
 
 /* ── PRODUCT MODAL ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s;overflow:hidden}
 @media(min-width:600px){.overlay{align-items:center;padding:20px}}
 .overlay.open{opacity:1;pointer-events:all}
-.modal-box{background:#fff;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;transform:translateY(30px);transition:transform .3s cubic-bezier(.4,0,.2,1);-webkit-overflow-scrolling:touch}
+.modal-box{background:#fff;width:100%;max-width:540px;max-height:90vh;overflow-y:scroll;overflow-x:hidden;border-radius:20px 20px 0 0;transform:translateY(30px);transition:transform .3s cubic-bezier(.4,0,.2,1);-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 @media(min-width:600px){.modal-box{border-radius:var(--r);transform:scale(.96);max-height:88vh}}
 .overlay.open .modal-box{transform:translateY(0) scale(1)}
 
@@ -254,12 +254,12 @@ img{display:block;max-width:100%}
 /* ── ADMIN MODAL ── */
 .adm-ov{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:3000;display:none;align-items:center;justify-content:center;padding:10px}
 .adm-ov.open{display:flex}
-.adm-box{background:#fff;border-radius:var(--r);width:100%;max-width:880px;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+.adm-box{background:#fff;border-radius:var(--r);width:100%;max-width:880px;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column}
 .adm-hdr{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;flex-shrink:0}
 .adm-hdr-title{font-size:16px;font-weight:700}
 .adm-close{border:none;background:transparent;font-size:19px;color:var(--muted);cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .2s}
 .adm-close:hover{background:var(--alt)}
-.adm-body{padding:18px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.adm-body{padding:18px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .adm-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:18px}
 .atab{padding:6px 12px;border-radius:var(--rs);border:1px solid var(--border);background:#fff;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s}
 .atab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -536,6 +536,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.16 1.72 5.95 4.34 7.67L6 22l3.38-1.77C10.2 20.72 11.08 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
         官方 LINE 詢問
       </a>
+      <button onclick="closeModal()" style="width:100%;margin-top:8px;padding:10px;border:1.5px solid var(--border);background:#fff;border-radius:var(--rs);font-size:12px;color:var(--muted);cursor:pointer">← 返回商品頁</button>
     </div>
   </div>
 </div>
@@ -820,7 +821,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
 // ║  請將下方網址換成你的 Apps Script 部署網址            ║
 // ╚══════════════════════════════════════════════════════╝
 var GS_URL = ''; // ← 部署後貼上網址（格式：https://script.google.com/macros/s/xxx/exec）
-var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons'];
+var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders','hailey_users'];
 
 function gsGet(key, cb) {
   if(!GS_URL){ cb(null, null); return; }
@@ -950,8 +951,9 @@ function loadFB() {
     if(err){ showSync('err','載入失敗，使用本地資料'); return; }
     if(!data){
       // 第一次使用：把本地資料存到試算表
+      var logoVal=localStorage.getItem('hailey_logo')||'';
       GS_KEYS.forEach(function(k){
-        var map={hailey_cats:cats,hailey_prods:prods,hailey_carousel:carData,hailey_about:about,hailey_pay:payInfo,hailey_coupons:coupons};
+        var map={hailey_cats:cats,hailey_prods:prods,hailey_carousel:carData,hailey_about:about,hailey_pay:payInfo,hailey_coupons:coupons,hailey_logo:logoVal,hailey_orders:orders,hailey_users:users};
         if(map[k]) gsSet(k, map[k]);
       });
       showSync('ok','初始化完成 ✅'); return;
@@ -962,6 +964,18 @@ function loadFB() {
     if(data.hailey_about){ about=data.hailey_about; localStorage.setItem('hailey_about',JSON.stringify(about)); }
     if(data.hailey_pay){ payInfo=data.hailey_pay; localStorage.setItem('hailey_pay',JSON.stringify(payInfo)); }
     if(data.hailey_coupons){ coupons=data.hailey_coupons; localStorage.setItem('hailey_coupons',JSON.stringify(coupons)); }
+    if(data.hailey_logo&&typeof data.hailey_logo==='string'){ localStorage.setItem('hailey_logo',data.hailey_logo); }
+    if(data.hailey_orders&&Array.isArray(data.hailey_orders)){
+      orders=data.hailey_orders; localStorage.setItem('hailey_orders',JSON.stringify(orders));
+    }
+    if(data.hailey_users&&Array.isArray(data.hailey_users)){
+      // 合併：不覆蓋本地管理員帳號
+      var gsUsers=data.hailey_users;
+      var localAdmin=users.find(function(u){ return u.admin; });
+      var merged=gsUsers.filter(function(u){ return !u.admin; });
+      if(localAdmin) merged.unshift(localAdmin);
+      users=merged; localStorage.setItem('hailey_users',JSON.stringify(users));
+    }
     showSync('ok','已同步 ✅');
     buildCar(); buildCatBars(); renderProds(); renderAbout();
     var pbi=id('payBankInfo'); if(pbi) pbi.innerHTML='銀行代號：'+payInfo.bank+'<br>帳號：'+payInfo.acct;
@@ -1405,10 +1419,17 @@ function submitOrder(){
 function renderAbout(){
   var el=id('aboutContent'); if(!el){ setTimeout(renderAbout,200); return; }
   var d=about||DABOUT;
+  // 確保有 blocks（防止 GS 回來格式不同）
+  if(!d.blocks||!d.blocks.length) d=DABOUT;
   var logo=localStorage.getItem('hailey_logo')||'https://i.ibb.co/YFZbDhzh/HAILEY-Logo-1.jpg';
   var bH='';
   (d.blocks||[]).forEach(function(b){
-    bH+='<div class="about-card"><div class="about-card-t">'+esc(b.t)+'</div><div class="about-text">'+(b.c||'').replace(/\n/g,'<br>')+'</div>'+(b.w?('<div class="about-warn">'+(b.w||'').replace(/\n/g,'<br>')+'</div>'):'')+'</div>';
+    // 同時支援 {t,c,w} 和 {title,content,warning} 兩種格式
+    var bt=b.t||b.title||'';
+    var bc=b.c||b.content||'';
+    var bw=b.w||b.warning||'';
+    if(!bt&&!bc) return; // 跳過空白區塊
+    bH+='<div class="about-card"><div class="about-card-t">'+esc(bt)+'</div><div class="about-text">'+bc.replace(/\n/g,'<br>')+'</div>'+(bw?('<div class="about-warn">'+bw.replace(/\n/g,'<br>')+'</div>'):'')+'</div>';
   });
   el.innerHTML='<div class="about-logo-box"><img src="'+esc(logo)+'" alt="Logo" onerror="this.style.display=\'none\';document.querySelector(\'.about-logo-fb\').style.display=\'block\'"><div class="about-logo-fb">ʜᴀɪʟᴇʏ</div></div>'+'<div class="about-title">'+esc(d.title)+'</div><div class="about-sub">'+esc(d.sub)+'</div>'+'<div class="about-card"><div class="about-text">'+(d.intro||'').replace(/\n/g,'<br>')+'</div></div>'+bH;
 }
@@ -1776,6 +1797,7 @@ function loadSettings(){
 function saveLogo(){
   var url=id('sLogo').value.trim(); if(!url){ toast('請輸入圖片網址'); return; }
   localStorage.setItem('hailey_logo',url);
+  gsSet('hailey_logo', url);
   var imgs=document.querySelectorAll('[data-logo]'); imgs.forEach(function(img){ img.src=url; });
   id('navLogoImg').src=url; renderAbout(); loadSettings(); toast('Logo 已更新 ✅');
 }
@@ -1939,12 +1961,42 @@ function renderAdmOrds(){
       +'<button class="bsm b-view" style="font-size:10px;padding:4px 10px" onclick="addOrdItem(this,true)">＋ 從商品選</button>'
       +'<button class="bsm" style="font-size:10px;padding:4px 10px;background:#e8f5e9;color:#2e7d32" onclick="saveOrdEdits(this)">💾 儲存修改</button>'
       +'</div>'
-      +(o.note?('<div style="font-size:11px;color:var(--muted);margin-top:5px">📝 '+esc(o.note)+'</div>'):'')
-      +(o.payBank?('<div style="font-size:11px;color:var(--muted);margin-top:3px">銀行：'+esc(o.payBank)+' / 後五碼：'+esc(o.code||'')+'</div>'):'')
+      +'<div style="margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+'<label style="font-size:11px;font-weight:700;color:var(--muted)">📦 寄送方式</label>'+'<select class="f-inp" style="font-size:11px;padding:3px 6px;width:auto" onchange="updOrdShip(this)">'+'<option value="face"'+(o.shipping==='face'?' selected':'')+'>面交（桃園區）</option>'+'<option value="711"'+(o.shipping==='711'?' selected':'')+'>7-11 店到店</option>'+'<option value="fam"'+(o.shipping==='fam'?' selected':'')+'>全家店到店</option>'+'</select>'+'<input class="f-inp" style="font-size:11px;padding:3px 6px;flex:1;min-width:100px" value="'+esc(o.store||'')+'" placeholder="門市名稱（選填）" oninput="updOrdStore(this)" data-oid="'+esc(o.id)+'">'+'</div>'
+      +(o.note?('<div style="font-size:11px;color:var(--muted);margin-top:2px">📋 客戶備註：'+esc(o.note)+'</div>'):'')
+      +(o.payBank?('<div style="font-size:11px;color:var(--muted);margin-top:2px">💳 '+esc(o.payBank)+' / 後五碼：'+esc(o.code||'')+'</div>'):'')
+      +'<div style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)"><label style="font-size:10px;font-weight:700;color:var(--adk)">🔒 後台備註（僅我可見）</label><input class="f-inp" style="font-size:11px;margin-top:3px;padding:5px 8px;background:#fffbf0" value="'+esc(o.adminNote||'')+'" placeholder="後台備註…" oninput="saveAdminNote(this)" data-oid="'+esc(o.id)+'"></div>'
       +'<div class="ord-total-row"><span>總計</span><span class="ord-tot-val">$'+(Number(o.total)||0).toLocaleString()+'</span></div></div>';
   });
   list.innerHTML=html;
   var ne=id('noEmail'); if(ne){ ne.innerHTML=''; users.filter(function(u){ return !u.admin; }).forEach(function(u){ ne.innerHTML+='<option value="'+esc(u.email)+'">'+esc(u.name||u.email)+' ('+esc(u.email)+')</option>'; }); }
+}
+function updOrdShip(sel){
+  var card=sel.closest('[data-oid]'); if(!card) return;
+  var oid=card.dataset.oid;
+  var o=orders.find(function(x){ return x.id===oid; }); if(!o) return;
+  o.shipping=sel.value;
+  LS.set('hailey_orders',orders);
+  // 同步備份（若有GS）
+  if(GS_URL) gsSet('hailey_orders', orders);
+  toast('寄送方式已更新');
+}
+function updOrdStore(inp){
+  var card=inp.closest('[data-oid]'); if(!card) return;
+  var oid=card.dataset.oid||inp.dataset.oid;
+  var o=orders.find(function(x){ return x.id===oid; }); if(!o) return;
+  o.store=inp.value;
+  LS.set('hailey_orders',orders);
+  if(GS_URL) gsSet('hailey_orders', orders);
+}
+
+
+function saveAdminNote(inp){
+  var oid=inp.dataset.oid;
+  if(!oid){ var card=inp.closest('[data-oid]'); if(card) oid=card.dataset.oid; }
+  var o=orders.find(function(x){ return x.id===oid; }); if(!o) return;
+  o.adminNote=inp.value;
+  LS.set('hailey_orders',orders);
+  if(GS_URL) gsSet('hailey_orders', orders);
 }
 function updOrdStatus(sel){
   var card=sel.closest('[data-oid]'); if(!card) return;
