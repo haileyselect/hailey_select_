@@ -386,8 +386,8 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
     <div class="car-dots" id="carDots"></div>
   </div>
   <div class="cat-bar"><div class="cat-scroll" id="catScroll"></div></div>
-  <div class="scat-bar" id="scatBar"></div>
   <div class="sub-bar" id="subBar"></div>
+  <div class="scat-bar" id="scatBar"></div>
   <div class="prods-sec">
     <div id="eventBanner" style="display:none;margin-bottom:14px"></div>
     <div class="sec-title-row">
@@ -1203,7 +1203,7 @@ function buildCatBars(){
   sc.innerHTML=''; sb.innerHTML='';
   var hasSp=false;
   cats.forEach(function(c){
-    if(c.sp){
+    if(c.sp||c.special){
       if(!c.hidden){
         hasSp=true;
         var btn=document.createElement('button');
@@ -1221,6 +1221,7 @@ function buildCatBars(){
       // 拖拉排序
       btn.draggable=true;
       btn.dataset.catid=c.id;
+      // 桌面拖拉
       btn.addEventListener('dragstart',function(e){ e.dataTransfer.setData('text/plain',c.id); btn.classList.add('dragging'); });
       btn.addEventListener('dragend',function(){ btn.classList.remove('dragging'); document.querySelectorAll('.citem').forEach(function(b){ b.classList.remove('drag-over'); }); });
       btn.addEventListener('dragover',function(e){ e.preventDefault(); btn.classList.add('drag-over'); });
@@ -1239,6 +1240,14 @@ function buildCatBars(){
         buildCatBars();
         if(id('admCatList')) renderAdmCats();
       });
+      // 手機長按拖拉
+      var touchTimer=null;
+      btn.addEventListener('touchstart',function(e){
+        touchTimer=setTimeout(function(){
+          toast('長按後拖動來移動分類位置');
+        },600);
+      },{passive:true});
+      btn.addEventListener('touchend',function(){ clearTimeout(touchTimer); },{passive:true});
       sc.appendChild(btn);
     }
   });
@@ -1965,12 +1974,41 @@ function renderAdmCats(){
       var hidden=(c.hidSubs||[]).indexOf(s)>-1;
       subH+='<div class="sub-row"><span class="sub-name'+(hidden?' hid':'')+'">'+esc(s)+'</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:'+(hidden?'#e8f0fe':'#f0f0f0')+';color:'+(hidden?'#4285f4':'#666')+'" onclick="togSubHide(\''+esc(c.id)+'\',\''+esc(s)+'\')">'+  (hidden?'顯示':'隱藏')+'</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat(\''+esc(c.id)+'\',\''+esc(s)+'\')">刪除</button></div></div>';
     });
-    html+='<div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="'+(c.hidden?'opacity:.45;text-decoration:line-through':'')+'">'+esc(c.name)+'</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide(\''+esc(c.id)+'\')">'+(c.hidden?'顯示':'隱藏')+'</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat(\''+esc(c.id)+'\')" >刪除</button></div></div><div class="cat-body">'+subH+'</div></div>';
+    var cIdx=cats.findIndex(function(x){ return x.id===c.id; });
+    var editableCats=cats.filter(function(x){ return !x.sp&&x.id!=='all'; });
+    var eIdx=editableCats.indexOf(c);
+    html+='<div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="'+(c.hidden?'opacity:.45;text-decoration:line-through':'')+'">'+esc(c.name)+'</span><div class="ali-acts">'
+      +(eIdx>0?'<button class="bsm b-edit" style="font-size:9px;padding:3px 7px" onclick="moveCatOrder(\''+esc(c.id)+'\',-1)">↑</button>':'')
+      +(eIdx<editableCats.length-1?'<button class="bsm b-edit" style="font-size:9px;padding:3px 7px" onclick="moveCatOrder(\''+esc(c.id)+'\',1)">↓</button>':'')
+      +'<button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide(\''+esc(c.id)+'\')">'+(c.hidden?'顯示':'隱藏')+'</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat(\''+esc(c.id)+'\')" >刪除</button></div></div><div class="cat-body">'+subH+'</div></div>';
   });
   list.innerHTML=html;
   var np=id('nsParent'); if(np){ np.innerHTML=''; editable.forEach(function(c){ np.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>'; }); }
   var ev=cats.find(function(c){ return c.id==='event'; });
   if(ev){ id('evLabel').value=ev.evLabel||''; id('evImg').value=ev.evImg||''; id('evDesc').value=ev.evDesc||''; }
+}
+function moveCatOrder(catId, dir){
+  // 只在非特殊、非all的分類裡移動
+  var editIdx = cats.findIndex(function(c){ return c.id===catId; });
+  if(editIdx<0) return;
+  // 找目標位置（跳過 sp 和 all）
+  var newIdx = editIdx;
+  if(dir===-1){
+    // 往前找第一個可以換的位置
+    for(var i=editIdx-1;i>=0;i--){
+      if(!cats[i].sp && cats[i].id!=='all'){ newIdx=i; break; }
+    }
+  } else {
+    for(var i=editIdx+1;i<cats.length;i++){
+      if(!cats[i].sp && cats[i].id!=='all'){ newIdx=i; break; }
+    }
+  }
+  if(newIdx===editIdx) return;
+  var moved=cats.splice(editIdx,1)[0];
+  cats.splice(newIdx,0,moved);
+  LS.set('hailey_cats',cats);
+  buildCatBars(); renderAdmCats();
+  toast('分類順序已更新 ✅');
 }
 function addParent(){
   var name=id('npName').value.trim(), cid=id('npId').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
@@ -2300,7 +2338,10 @@ function renderAdmOrds(){
       +'</div>'
       +'<div style="margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+'<label style="font-size:11px;font-weight:700;color:var(--muted)">📦 寄送方式</label>'+'<select class="f-inp" style="font-size:11px;padding:3px 6px;width:auto" onchange="updOrdShip(this)">'+'<option value="face"'+(o.shipping==='face'?' selected':'')+'>面交（桃園區）</option>'+'<option value="711"'+(o.shipping==='711'?' selected':'')+'>7-11 店到店</option>'+'<option value="fam"'+(o.shipping==='fam'?' selected':'')+'>全家店到店</option>'+'</select>'+'<input class="f-inp" style="font-size:11px;padding:3px 6px;flex:1;min-width:100px" value="'+esc(o.store||'')+'" placeholder="門市名稱（選填）" oninput="updOrdStore(this)" data-oid="'+esc(o.id)+'">'+'</div>'
       +(o.note?('<div style="font-size:11px;color:var(--muted);margin-top:2px">📋 客戶備註：'+esc(o.note)+'</div>'):'')
-      +(o.payBank?('<div style="font-size:11px;color:var(--muted);margin-top:2px">💳 '+esc(o.payBank)+' / 後五碼：'+esc(o.code||'')+'</div>'):'')
+      +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">'
+      +'<label style="font-size:10px;font-weight:700;color:var(--adk);flex-shrink:0">💳 付款</label>'
+      +'<input class="f-inp" style="font-size:11px;padding:3px 6px;flex:1;min-width:80px" value="'+esc(o.payBank||'')+' " placeholder="付款銀行" oninput="updOrdPayBank(this)" data-oid="'+esc(o.id)+'">'
+      +'<input class="f-inp" style="font-size:11px;padding:3px 6px;width:80px" value="'+esc(o.code||'')+' " placeholder="後五碼" maxlength="5" oninput="updOrdCode(this)" data-oid="'+esc(o.id)+'">'+'</div>'
       +'<div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0;border-top:1px dashed var(--border)">'
       +'<label style="font-size:10px;font-weight:700;color:var(--adk);flex-shrink:0">🎟 折價券</label>'
       +'<select class="f-inp" style="font-size:11px;padding:3px 6px;width:auto;flex:1;min-width:100px" onchange="updOrdCoupon(this)">'
@@ -2324,6 +2365,20 @@ function updOrdShip(sel){
   // 同步備份（若有GS）
   if(GS_URL) gsSet('hailey_orders', orders);
   toast('寄送方式已更新');
+}
+function updOrdPayBank(inp){
+  var card=inp.closest('[data-oid]'); if(!card) return;
+  var oid=card.dataset.oid||inp.dataset.oid;
+  var o=orders.find(function(x){ return x.id===oid; }); if(!o) return;
+  o.payBank=inp.value.trim();
+  LS.set('hailey_orders',orders);
+}
+function updOrdCode(inp){
+  var card=inp.closest('[data-oid]'); if(!card) return;
+  var oid=card.dataset.oid||inp.dataset.oid;
+  var o=orders.find(function(x){ return x.id===oid; }); if(!o) return;
+  o.code=inp.value.trim();
+  LS.set('hailey_orders',orders);
 }
 function updOrdStore(inp){
   var card=inp.closest('[data-oid]'); if(!card) return;
@@ -2724,8 +2779,9 @@ function loadDesignAdmin(){
 }
 function syncDesign(){
   var d=LS.get('hailey_design',{});
+  if(!GS_URL){ toast('請先設定 Google Sheets 網址'); return; }
   gsSet('hailey_design',d);
-  toast('設計已同步到所有裝置 ✅');
+  toast('設計已同步 ✅ 其他裝置重新整理後即套用');
 }
 function applyDesign(){
   var d=LS.get('hailey_design',{});
@@ -2740,6 +2796,8 @@ function saveDesign(key,val){
   d[key]=val;
   localStorage.setItem('hailey_design',JSON.stringify(d));
   applyDesign();
+  // 即時同步到 GS（不需要另外按同步按鈕）
+  gsSet('hailey_design',d);
 }
 function resetDesign(){
   localStorage.removeItem('hailey_design');
