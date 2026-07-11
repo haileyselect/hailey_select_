@@ -504,7 +504,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <label class="pay-label">匯款後 — 帳號後五碼</label>
         <input class="f-inp" id="coCode" placeholder="請填入帳號後五碼" maxlength="5">
         <div class="line-remind">
-          <div class="lrem-text">📱 <strong>請加入官方 LINE 並發送您的姓名</strong>，以利後續訂單作業。出貨後也會透過 LINE 通知您 🚚</div>
+          <div class="lrem-text">📋 送出訂單後，請至 <strong>會員 → 訂單記錄</strong> 截圖下單的該筆訂單資訊，且加入官方 LINE 傳送訂單截圖，以利後續作業。訂單出貨後也會透過 LINE 通知 🚚</div>
           <a class="lrem-btn" href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank">加入官方 LINE</a>
         </div>
         <label class="pay-label">備註（選填）</label>
@@ -860,7 +860,14 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
             <button class="adm-cancel" onclick="document.getElementById('newOrdForm').classList.remove('vis')">取消</button>
           </div>
         </div>
-        <div id="admOrdList" style="margin-top:10px"></div>
+        <div style="margin-top:10px;margin-bottom:8px;display:flex;gap:8px;align-items:center">
+          <div style="flex:1;display:flex;align-items:center;background:#fff;border:1.5px solid var(--border);border-radius:22px;padding:0 12px;max-width:320px;transition:border-color .2s" id="ordSearchWrap">
+            <input id="ordSearch" class="search-inp" type="text" placeholder="🔍 搜尋訂單號 / 姓名 / 電話…" oninput="filterOrds()" style="flex:1;padding:8px 0;border:none;background:transparent;outline:none;font-size:12px">
+            <button onclick="clearOrdSearch()" style="border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;display:none" id="ordSearchX">✕</button>
+          </div>
+          <span id="ordCount" style="font-size:11px;color:var(--muted)"></span>
+        </div>
+        <div id="admOrdList" style="margin-top:4px"></div>
       </div>
 
       <!-- COUPONS -->
@@ -2411,8 +2418,24 @@ function closeMD(){ id('mdOv').classList.remove('open'); }
 function renderAdmOrds(){
   var list=id('admOrdList'); if(!list) return;
   if(!orders.length){ list.innerHTML='<div style="color:var(--muted);padding:12px 0">尚無訂單</div>'; return; }
+  // 搜尋過濾
+  var filtered=orders.slice().reverse();
+  if(ordSearchQ){
+    filtered=filtered.filter(function(o){
+      var u=users.find(function(x){ return x.email===o.email; });
+      var phone=u?u.phone||'':'';
+      return (o.id||'').toLowerCase().indexOf(ordSearchQ)>-1
+        || (o.name||'').toLowerCase().indexOf(ordSearchQ)>-1
+        || (o.email||'').toLowerCase().indexOf(ordSearchQ)>-1
+        || phone.toLowerCase().indexOf(ordSearchQ)>-1
+        || (o.code||'').indexOf(ordSearchQ)>-1;
+    });
+  }
+  var countEl=id('ordCount');
+  if(countEl) countEl.textContent=ordSearchQ?('找到 '+filtered.length+' 筆'):('共 '+orders.length+' 筆訂單');
+  if(!filtered.length){ list.innerHTML='<div style="color:var(--muted);padding:12px 0">找不到符合的訂單</div>'; return; }
   var html='';
-  orders.slice().reverse().forEach(function(o){
+  filtered.forEach(function(o){
     var realIdx=orders.findIndex(function(x){ return x.id===o.id; });
     var iH='';
     (o.items||[]).forEach(function(item,ii){
@@ -2424,7 +2447,12 @@ function renderAdmOrds(){
         +'<button class="bsm b-del" style="font-size:10px;padding:2px 6px" onclick="delOrdItem(this)">✕</button></div>';
     });
     html+='<div class="ord-card" data-oid="'+esc(o.id)+'">'
-      +'<div class="ord-hdr"><div><div class="ord-id">'+esc(o.id)+'</div><div class="ord-date">'+esc(o.date)+' · '+esc(o.email)+'</div></div>'
+      +'<div class="ord-hdr"><div>'
+      +'<div class="ord-id">'+esc(o.id)+'</div>'
+      +'<div class="ord-date">'+esc(o.date)+'</div>'
+      +(o.name?('<div style="font-size:11px;font-weight:600;color:var(--txt)">👤 '+esc(o.name)+'</div>'):'')
+      +(function(){ var u=users.find(function(x){ return x.email===o.email; }); var ph=u&&u.phone?u.phone:''; return ph?('<div style="font-size:10px;color:var(--muted)">📞 '+esc(ph)+' · '+esc(o.email)+'</div>'):('<div style="font-size:10px;color:var(--muted)">'+esc(o.email)+'</div>'); })()
+      +'</div>'
       +'<div style="display:flex;align-items:center;gap:5px">'
       +'<select class="f-inp" style="font-size:11px;padding:3px 6px;width:auto" onchange="updOrdStatus(this)">'
       +'<option value="待確認"'+(o.status==='待確認'?' selected':'')+'>待確認</option>'
@@ -2527,6 +2555,23 @@ function saveAdminNote(inp){
   o.adminNote=inp.value;
   LS.set('hailey_orders',orders);
   if(GS_URL) gsSet('hailey_orders', orders);
+}
+// ── 訂單搜尋 ──
+var ordSearchQ = '';
+function filterOrds(){
+  var inp = document.getElementById('ordSearch');
+  ordSearchQ = (inp ? inp.value : '').trim().toLowerCase();
+  var xBtn = document.getElementById('ordSearchX');
+  if(xBtn) xBtn.style.display = ordSearchQ ? 'block' : 'none';
+  renderAdmOrds();
+}
+function clearOrdSearch(){
+  var inp = document.getElementById('ordSearch');
+  if(inp) inp.value = '';
+  ordSearchQ = '';
+  var xBtn = document.getElementById('ordSearchX');
+  if(xBtn) xBtn.style.display = 'none';
+  renderAdmOrds();
 }
 function updOrdStatus(sel){
   var card=sel.closest('[data-oid]'); if(!card) return;
