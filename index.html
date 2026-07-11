@@ -751,6 +751,11 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <div class="form-g"><label class="f-lbl">Apps Script 部署網址</label><input class="f-inp" id="gsUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
         <button class="adm-save" onclick="saveGsUrl()">儲存網址</button>
         <button class="bsm b-edit" style="padding:9px 13px;font-size:12px;margin-left:6px" onclick="testGsUrl()">測試連線</button>
+        <div id="gsUrlDownloadBox" style="display:none;margin-top:12px;background:#e8f5e9;border:1.5px solid #81c784;border-radius:var(--rs);padding:12px">
+          <div style="font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px">⚠️ 重要！請下載並重新上傳 GitHub</div>
+          <div style="font-size:11px;color:#388e3c;margin-bottom:8px;line-height:1.7">設定好的網址需要寫進 HTML 檔案，這樣所有裝置才能讀到。<br>點下方按鈕下載含網址的新版本，再上傳到 GitHub 取代舊的。</div>
+          <button class="adm-save" style="background:#2e7d32" onclick="downloadWithUrl()">⬇️ 下載含網址的 HTML</button>
+        </div>
         </div>
       </div>
 
@@ -830,7 +835,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
 // ║  請將下方網址換成你的 Apps Script 部署網址            ║
 // ╚══════════════════════════════════════════════════════╝
 var GS_URL = ''; // ← 部署後貼上網址（格式：https://script.google.com/macros/s/xxx/exec）
-var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders'];
+var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders','hailey_users'];
 
 function gsGet(key, cb) {
   if(!GS_URL){ cb(null, null); return; }
@@ -863,6 +868,26 @@ function showSync(type, msg) {
 }
 
 // ╔══════════════════════════════════════════════════════╗
+// ║  PASSWORD UTILS                                      ║
+// ╚══════════════════════════════════════════════════════╝
+// 簡單的密碼混淆（非加密，但避免明文存 GS）
+function hashPw(pw){
+  var h=0, s=pw+'hailey2024';
+  for(var i=0;i<s.length;i++){ h=((h<<5)-h)+s.charCodeAt(i); h=h&h; }
+  return 'h'+Math.abs(h).toString(36);
+}
+// 把 users 陣列密碼 hash 後再存（用於 GS）
+function safeUsers(usersArr){
+  return usersArr.map(function(u){
+    var safe={}; 
+    for(var k in u) safe[k]=u[k];
+    if(u.pw) safe.pwh=hashPw(u.pw);
+    delete safe.pw;
+    return safe;
+  });
+}
+
+// ╔══════════════════════════════════════════════════════╗
 // ║  HELPERS                                             ║
 // ╚══════════════════════════════════════════════════════╝
 function id(x){ return document.getElementById(x); }
@@ -872,7 +897,11 @@ var LS = {
   get: function(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
   set: function(k,v){
     localStorage.setItem(k,JSON.stringify(v));
-    if(GS_KEYS.indexOf(k)>-1) gsSet(k,v);
+    if(GS_KEYS.indexOf(k)>-1){
+      // users 存 GS 時移除明文密碼
+      var gsVal = (k==='hailey_users') ? safeUsers(v) : v;
+      gsSet(k, gsVal);
+    }
   }
 };
 
@@ -962,7 +991,7 @@ function loadFB() {
       // 第一次使用：把本地資料存到試算表
       var logoVal=localStorage.getItem('hailey_logo')||'';
       GS_KEYS.forEach(function(k){
-        var map={hailey_cats:cats,hailey_prods:prods,hailey_carousel:carData,hailey_about:about,hailey_pay:payInfo,hailey_coupons:coupons,hailey_logo:logoVal,hailey_orders:orders};
+        var map={hailey_cats:cats,hailey_prods:prods,hailey_carousel:carData,hailey_about:about,hailey_pay:payInfo,hailey_coupons:coupons,hailey_logo:logoVal,hailey_orders:orders,hailey_users:safeUsers(users)};
         if(map[k]) gsSet(k, map[k]);
       });
       showSync('ok','初始化完成 ✅'); return;
@@ -978,12 +1007,28 @@ function loadFB() {
       orders=data.hailey_orders; localStorage.setItem('hailey_orders',JSON.stringify(orders));
     }
     if(data.hailey_users&&Array.isArray(data.hailey_users)){
-      // 合併：不覆蓋本地管理員帳號
       var gsUsers=data.hailey_users;
+      // 管理員永遠用本地的
       var localAdmin=users.find(function(u){ return u.admin; });
-      var merged=gsUsers.filter(function(u){ return !u.admin; });
-      if(localAdmin) merged.unshift(localAdmin);
-      users=merged; localStorage.setItem('hailey_users',JSON.stringify(users));
+      // 合併：GS 有的會員補充到本地，本地有的保留密碼
+      gsUsers.forEach(function(gsU){
+        if(gsU.admin) return;
+        var localIdx=users.findIndex(function(u){ return u.email===gsU.email; });
+        if(localIdx>-1){
+          // 本地已有：用 GS 更新資料，但保留本地密碼
+          var keepPw=users[localIdx].pw;
+          var keepPwh=users[localIdx].pwh;
+          users[localIdx]=Object.assign({},gsU,{pw:keepPw,pwh:keepPwh});
+        } else {
+          // 本地沒有（換裝置）：從 GS 加入，保留 pwh 供驗證
+          users.push(gsU);
+        }
+      });
+      if(localAdmin){
+        var ai=users.findIndex(function(u){ return u.admin; });
+        if(ai>-1) users[ai]=localAdmin; else users.unshift(localAdmin);
+      }
+      localStorage.setItem('hailey_users',JSON.stringify(users));
     }
     showSync('ok','已同步 ✅');
     buildCar(); buildCatBars(); renderProds(); renderAbout();
@@ -1480,7 +1525,7 @@ function saveMem(){
   if(newPw){
     if(newPw.length<6){ toast('新密碼至少需要 6 位數'); return; }
     if(newPw!==newPw2){ toast('兩次密碼不一致，請重新輸入'); return; }
-    me.pw=newPw;
+    me.pw=newPw; me.pwh=hashPw(newPw);
     id('memNewPw').value=''; id('memNewPw2').value='';
     toast('密碼已更新，下次登入請使用新密碼 ✅');
   } else {
@@ -1539,7 +1584,7 @@ function togAuth(){
 function doLogin(){
   var email=(id('loginEmail').value||'').trim(), pw=id('loginPw').value;
   // 先找本地 users
-  var user=users.find(function(u){ return u.email===email&&u.pw===pw; });
+  var user=users.find(function(u){ return u.email===email&&(u.pw===pw||(u.pwh&&u.pwh===hashPw(pw))); });
   // 管理員備用：若本地找不到，用硬編碼驗證
   if(!user&&email==='admin@hailey.com'&&pw==='admin123'){
     user={email:'admin@hailey.com',pw:'admin123',name:'Hailey',admin:true,gender:'女',phone:'',birth:'',ship:{face:true,s711:false,s711s:'',fam:false,fams:''}};
@@ -1558,7 +1603,7 @@ function doReg(){
   if(pw!==pw2){ showLoginErr('兩次密碼不一致'); return; }
   if(users.find(function(u){ return u.email===email; })){ showLoginErr('此 Email 已被註冊'); return; }
   var nu={
-    email:email, pw:pw, admin:false,
+    email:email, pw:pw, pwh:hashPw(pw), admin:false,
     name:(id('regName').value||'').trim(),
     phone:(id('regPhone').value||'').trim(),
     birth:id('regBirth').value||'',
@@ -1941,11 +1986,14 @@ function saveMD(email){
   var newEmail=(id('mdEmail').value||'').trim();
   var newPw=(id('mdPw').value||'').trim();
   if(newEmail&&newEmail!==email){
-    // Check email not already taken
     if(users.find(function(x){ return x.email===newEmail&&x.email!==email; })){ toast('此 Email 已被其他人使用'); return; }
     u.email=newEmail;
   }
-  if(newPw&&newPw.length>=6) u.pw=newPw;
+  var pwChanged=false;
+  if(newPw){
+    if(newPw.length<6){ toast('密碼至少需要 6 位數'); return; }
+    u.pw=newPw; u.pwh=hashPw(newPw); pwChanged=true;
+  }
   u.ship={
     face:id('mdFace').checked,
     s711:id('md711').checked,
@@ -1953,7 +2001,14 @@ function saveMD(email){
     fam:id('mdFam').checked,
     fams:(id('mdFams').value||'').trim()
   };
-  LS.set('hailey_users',users); toast('會員資料已更新 ✅');
+  // 儲存到本地 + 同步 GS（含新 hash，顧客換裝置也能用新密碼）
+  LS.set('hailey_users',users);
+  if(pwChanged){
+    toast('密碼已更新！顧客可用新密碼登入（含其他裝置）✅');
+    id('mdPw').value=''; // 清空密碼欄
+  } else {
+    toast('會員資料已更新 ✅');
+  }
   if(me&&me.email===email){ me=u; updNavAuth(); }
   renderAdmMems();
 }
@@ -2155,13 +2210,38 @@ function saveGsUrl(){
   if(url.indexOf('script.google.com')<0 && url.indexOf('macros')<0){ 
     toast('請確認是 Apps Script 部署網址（含 macros/s/...）'); return; 
   }
-  // 自動補 exec 結尾
-  if(url.indexOf('/exec')<0 && url.slice(-5)!=='/exec') url=url.replace(/\/+$/,'')+'/exec';
+  if(url.indexOf('/exec')<0) url=url.replace(/\/+$/,'')+'/exec';
   GS_URL=url; 
   localStorage.setItem('hailey_gs_url',url);
   id('gsUrl').value=url;
-  toast('網址已儲存，測試中…');
+  // 更新 meta tag（當前頁面有效）
+  var metaGs=document.querySelector('meta[name="gs-url"]');
+  if(metaGs) metaGs.setAttribute('content',url);
+  // 顯示「下載含網址版本」按鈕
+  var dlBox=id('gsUrlDownloadBox');
+  if(dlBox) dlBox.style.display='block';
+  toast('網址已儲存！請點「下載含網址的 HTML」重新上傳 GitHub ⬇️');
   testGsUrl();
+}
+function downloadWithUrl(){
+  // 把目前頁面的 HTML 取出，把 meta gs-url 和 var GS_URL 都寫進去，讓用戶下載
+  var source=document.documentElement.outerHTML;
+  // 更新 var GS_URL = '' 這行
+  source=source.replace(
+    /var GS_URL = '[^']*';/,
+    "var GS_URL = '"+GS_URL+"';"
+  );
+  // 更新 meta gs-url
+  source=source.replace(
+    /<meta name="gs-url" content="[^"]*">/,
+    '<meta name="gs-url" content="'+GS_URL+'">'
+  );
+  var blob=new Blob([source],{type:'text/html'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='hailey-shop.html';
+  a.click();
+  toast('已下載！請上傳到 GitHub 取代舊的 hailey-shop.html ✅');
 }
 function testGsUrl(){
   var url=(id('gsUrl').value||GS_URL||'').trim();
@@ -2189,8 +2269,15 @@ function loadGsSettings(){
 // ╚══════════════════════════════════════════════════════╝
 function init(){
   // Restore GS URL from localStorage
-  var savedUrl=localStorage.getItem('hailey_gs_url');
-  if(savedUrl) GS_URL=savedUrl;
+  // GS_URL 讀取順序：1.程式碼內建值 2.meta tag 3.localStorage
+  var metaGs=document.querySelector('meta[name="gs-url"]');
+  if(metaGs&&metaGs.content&&metaGs.content.indexOf('script.google.com')>-1){
+    GS_URL=metaGs.content;
+    localStorage.setItem('hailey_gs_url',GS_URL);
+  } else {
+    var savedUrl=localStorage.getItem('hailey_gs_url');
+    if(savedUrl) GS_URL=savedUrl;
+  }
   restoreSess(); updNavAuth(); updCartDot();
   buildCar(); buildCatBars(); renderProds(); renderAbout();
   var pbi=id('payBankInfo'); if(pbi) pbi.innerHTML='銀行代號：'+esc(payInfo.bank)+'<br>帳號：'+esc(payInfo.acct);
