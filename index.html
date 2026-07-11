@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
+<html lang="zh-TW"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>ʜᴀɪʟᴇʏ 海莉代購/選品</title>
@@ -365,22 +363,20 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
     <button class="ntab" onclick="goPage('member')">👤 會員</button>
   </div>
   <div class="nav-right">
-    <button class="nav-cart" onclick="goPage('cart')">🛒<span class="cart-dot" id="cartDot">0</span></button>
-    <div id="navAuth" style="position:relative">
-      <button class="nav-login" onclick="openLogin()">登入 / 註冊</button>
-    </div>
+    <button class="nav-cart" onclick="goPage('cart')">🛒<span class="cart-dot" id="cartDot" style="display: flex;">1</span></button>
+    <div id="navAuth" style="position:relative"><div class="nav-avatar" onclick="togUserMenu()" style="background:#9A7955">H</div><div class="user-menu" id="userMenu"><div class="umenu-email">admin@hailey.com 👑</div><button class="umenu-btn" style="color:var(--adk);font-weight:700;border-bottom:1px solid var(--border);margin-bottom:4px;padding-bottom:10px" onclick="openAdm();togUserMenu()">⚙️ 管理員後台</button><button class="umenu-btn" onclick="goPage('member');togUserMenu()">👤 會員中心</button><button class="umenu-btn danger" onclick="logout();togUserMenu()">登出</button></div></div>
   </div>
 </nav>
 
 <!-- ── SHOP PAGE ── -->
 <div class="page on" id="page-shop">
   <div class="carousel" id="carousel">
-    <div class="car-track" id="carTrack"></div>
-    <button class="car-arrow car-prev" onclick="carMove(-1)">&#8249;</button>
-    <button class="car-arrow car-next" onclick="carMove(1)">&#8250;</button>
-    <div class="car-dots" id="carDots"></div>
+    <div class="car-track" id="carTrack" style="transform: translateX(-200%);"><div class="car-slide"><div class="car-content"><div class="car-tag">NEW · 新品</div><div class="car-title">夏日新品上架 ✨</div><div class="car-sub">精選韓系服飾，現正熱銷中</div><button class="car-btn" onclick="event.stopPropagation();carClick(0)">前往新品</button></div></div><div class="car-slide"><div class="car-content"><div class="car-tag">SALE · 限時</div><div class="car-title">限時優惠特賣 🔥</div><div class="car-sub">多款商品下殺，數量有限</div><button class="car-btn" onclick="event.stopPropagation();carClick(1)">搶先看</button></div></div><div class="car-slide"><div class="car-content"><div class="car-tag">代購 · 正品</div><div class="car-title">香水代購開團 🌸</div><div class="car-sub">Dior · Chanel · Jo Malone</div><button class="car-btn" onclick="event.stopPropagation();carClick(2)">查看香水</button></div></div></div>
+    <button class="car-arrow car-prev" onclick="carMove(-1)">‹</button>
+    <button class="car-arrow car-next" onclick="carMove(1)">›</button>
+    <div class="car-dots" id="carDots"><button class="car-dot"></button><button class="car-dot"></button><button class="car-dot on"></button></div>
   </div>
-  <div class="cat-bar"><div class="cat-scroll" id="catScroll"></div></div>
+  <div class="cat-bar"><div class="cat-scroll" id="catScroll"><button class="citem on">所有商品</button><button class="citem">服飾</button><button class="citem">飾品</button><button class="citem">鞋子</button><button class="citem">香水</button><button class="citem">美妝保養</button><button class="citem">零食</button><button class="citem">家居</button><button class="citem">🆕 新品上市</button><button class="citem">🔥 限時優惠</button><button class="citem">🎉 活動專區</button></div></div>
   <div class="scat-bar" id="scatBar"></div>
   <div class="sub-bar" id="subBar"></div>
   <div class="prods-sec">
@@ -392,14 +388,14 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <button class="search-x" id="searchX" onclick="clearSearch()">✕</button>
       </div>
     </div>
-    <div class="search-hint" id="searchHint"></div>
-    <div class="prods-grid" id="prodsGrid"></div>
+    <div class="search-hint" id="searchHint" style="display: none;"></div>
+    <div class="prods-grid" id="prodsGrid"><div class="pcard" onclick="openProd(0)"><div class="pcard-img-wrap"><img src="https://cdn.phototourl.com/free/2026-07-11-969af959-6697-4922-aabc-e86e9c1588da.jpg" alt="方晶鋯石戒指" onerror="this.parentElement.innerHTML='&lt;div class=pcard-noimg&gt;🛍&lt;/div&gt;'"><div class="pcard-badge new-b">NEW</div></div><div class="pcard-body"><div class="pcard-name">方晶鋯石戒指</div><div class="pcard-price">$890</div></div></div></div>
   </div>
 </div>
 
 <!-- ── ABOUT PAGE ── -->
 <div class="page" id="page-about">
-  <div class="about-wrap" id="aboutContent"></div>
+  <div class="about-wrap" id="aboutContent"><div class="about-logo-box"><img src="https://i.ibb.co/YFZbDhzh/HAILEY-Logo-1.jpg" alt="Logo" onerror="this.style.display='none';document.querySelector('.about-logo-fb').style.display='block'"><div class="about-logo-fb">ʜᴀɪʟᴇʏ</div></div><div class="about-title">ʜᴀɪʟᴇʏ 海莉代購/選品</div><div class="about-sub"></div><div class="about-card"><div class="about-text">哈囉👋🏻 我是 ʜᴀɪʟᴇʏ 海莉代購/選品 的闆娘 Hailey<br><br>嚴選美妝、保養、香水、服飾、零食等各式好物✨<br>不定期飛各地代購✈️🌍<br>代購商品都是 Hailey 親自挑選，用心把關品質❣️<br>選品也是 Hailey 親自實測推薦的愛用好物❣️</div></div><div class="about-card"><div class="about-card-t">📌 下單方式</div><div class="about-text">請直接在此網頁下單，或私訊官方 LINE 由小幫手協助下單。</div></div><div class="about-card"><div class="about-card-t">📌 付款方式 &amp; 訂單成立</div><div class="about-text">僅提供匯款，結帳頁面或私訊官方帳號下單後會提供銀行帳號，完成匯款後，麻煩提供帳號後五碼或轉帳截圖畫面。</div><div class="about-warn">⚠️ 店到店下單會先收商品全額款項，面交則會收商品一半款項。<br>⚠️ 代購商品訂單成立後禁止更改或取消商品。<br>⚠️ 匯款完成訂單才正式成立，24小時內如欲更改請洽詢官方LINE（超過24小時不可更改訂單）。棄單一律以黑名單處理❌</div></div><div class="about-card"><div class="about-card-t">📌 寄送方式及運費</div><div class="about-text">目前僅提供面交（限桃園區）、7-11 店到店、全家店到店，店到店運費皆為 60 元，面交不收取運費。</div></div><div class="about-card"><div class="about-card-t">📌 出貨時間</div><div class="about-text">代購商品：Hailey 回國後 5 天內會出貨。<br>現貨 7 天內出貨，預購 15–30 天出貨。</div></div><div class="about-card"><div class="about-card-t">📌 退換貨機制</div><div class="about-text">包裹取件後 3 天內提供：破碎照片、開箱影片、包裹單號<br>商品有重大瑕疵、破瓶、外包裝嚴重破損，我們將提供退換貨。<br><br>運送過程外盒難免會有凹痕，均會加強包裝，包裹都會包好包滿請各位放心👏🏻</div></div></div>
 </div>
 
 <!-- ── MEMBER PAGE ── -->
@@ -425,7 +421,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <div class="form-g"><label class="f-lbl">電話</label><input class="f-inp" id="mPhone" placeholder="09xx-xxx-xxx" type="tel"></div>
         <div class="f-row">
           <div class="form-g"><label class="f-lbl">生日</label><input class="f-inp" id="mBirth" type="date"></div>
-          <div class="form-g"><label class="f-lbl">Email</label><input class="f-inp" id="mEmail" type="email" readonly style="background:#f5f5f5"></div>
+          <div class="form-g"><label class="f-lbl">Email</label><input class="f-inp" id="mEmail" type="email" readonly="" style="background:#f5f5f5"></div>
         </div>
         <div class="form-g">
           <label class="f-lbl">寄送方式（可複選）</label>
@@ -472,7 +468,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
           <div class="ship-opt" id="so-711" onclick="selShip('711')"><div class="ship-name">📦 7-11</div><div class="ship-fee">運費 $60</div></div>
           <div class="ship-opt" id="so-fam" onclick="selShip('fam')"><div class="ship-name">📦 全家</div><div class="ship-fee">運費 $60</div></div>
         </div>
-        <div class="face-hint" id="faceHint"><div class="fh-text">📍 面交地點請加入官方 LINE 詢問</div><a class="fh-btn" href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank">詢問面交</a></div>
+        <div class="face-hint" id="faceHint"><div class="fh-text">📍 面交地點請加入官方 LINE 詢問</div><a class="fh-btn" href="https://line.me/R/ti/p/@527wiirs?from=page&amp;searchId=527wiirs" target="_blank">詢問面交</a></div>
         <div id="storeWrap" style="display:none;margin-bottom:10px"><label class="f-lbl">取貨門市</label><input class="f-inp" id="coStore" placeholder="請填寫門市名稱"></div>
         <div class="co-sum">
           <div class="sum-row"><span>商品小計</span><span id="sumSub">$0</span></div>
@@ -500,12 +496,12 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <input class="f-inp" id="coCode" placeholder="請填入帳號後五碼" maxlength="5">
         <div class="line-remind">
           <div class="lrem-text">📱 <strong>請加入官方 LINE 並發送您的姓名</strong>，以利後續訂單作業。出貨後也會透過 LINE 通知您 🚚</div>
-          <a class="lrem-btn" href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank">加入官方 LINE</a>
+          <a class="lrem-btn" href="https://line.me/R/ti/p/@527wiirs?from=page&amp;searchId=527wiirs" target="_blank">加入官方 LINE</a>
         </div>
         <label class="pay-label">備註（選填）</label>
         <textarea class="f-inp" id="coNote" rows="2" placeholder="特殊要求、顏色尺寸補充說明…" style="resize:none"></textarea>
         <button class="submit-btn" onclick="submitOrder()">確認送出訂單</button>
-        <div class="submit-note">送出後請等待管理員確認，訂單成立後如欲更改請洽詢官方 <a href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank" style="color:var(--adk);font-weight:600">LINE</a></div>
+        <div class="submit-note">送出後請等待管理員確認，訂單成立後如欲更改請洽詢官方 <a href="https://line.me/R/ti/p/@527wiirs?from=page&amp;searchId=527wiirs" target="_blank" style="color:var(--adk);font-weight:600">LINE</a></div>
       </div>
     </div>
   </div>
@@ -520,8 +516,8 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
     </div>
     <div class="modal-slider" id="msSlider">
       <div class="ms-track" id="msTrack"></div>
-      <button class="ms-arrow ms-prev" id="msPrev" onclick="msMove(-1)">&#8249;</button>
-      <button class="ms-arrow ms-next" id="msNext" onclick="msMove(1)">&#8250;</button>
+      <button class="ms-arrow ms-prev" id="msPrev" onclick="msMove(-1)">‹</button>
+      <button class="ms-arrow ms-next" id="msNext" onclick="msMove(1)">›</button>
       <div class="ms-dots" id="msDots"></div>
     </div>
     <div class="thumb-strip" id="thumbStrip" style="display:none"></div>
@@ -535,14 +531,14 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
       <div id="mSizeW" style="display:none"><div class="m-label">尺寸</div><div class="chips" id="mSizes"></div></div>
       <div class="m-label">數量</div>
       <div class="qty-row">
-        <button class="qty-btn" onclick="chgQty(-1)">&#8722;</button>
+        <button class="qty-btn" onclick="chgQty(-1)">−</button>
         <span class="qty-n" id="qtyN">1</span>
         <button class="qty-btn" onclick="chgQty(1)">+</button>
         <span class="qty-total" id="qtyTot">合計：$0</span>
       </div>
       <button class="m-add-btn" onclick="addToCart()">加入購物車</button>
-      <a class="m-line-btn" href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.16 1.72 5.95 4.34 7.67L6 22l3.38-1.77C10.2 20.72 11.08 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+      <a class="m-line-btn" href="https://line.me/R/ti/p/@527wiirs?from=page&amp;searchId=527wiirs" target="_blank">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.16 1.72 5.95 4.34 7.67L6 22l3.38-1.77C10.2 20.72 11.08 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"></path></svg>
         官方 LINE 詢問
       </a>
       <button onclick="closeModal()" style="width:100%;margin-top:8px;padding:10px;border:1.5px solid var(--border);background:#fff;border-radius:var(--rs);font-size:12px;color:var(--muted);cursor:pointer">← 返回商品頁</button>
@@ -594,7 +590,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
 </div>
 
 <!-- ── ADMIN MODAL ── -->
-<div class="adm-ov" id="admOv" onclick="if(event.target===this)closeAdm()">
+<div class="adm-ov open" id="admOv" onclick="if(event.target===this)closeAdm()">
   <div class="adm-box">
     <div class="adm-hdr">
       <div class="adm-hdr-title">⚙️ 管理員後台</div>
@@ -602,18 +598,18 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
     </div>
     <div class="adm-body">
       <div class="adm-tabs">
-        <button class="atab on" onclick="admTab('prods')">商品</button>
+        <button class="atab" onclick="admTab('prods')">商品</button>
         <button class="atab" onclick="admTab('car')">輪播圖</button>
         <button class="atab" onclick="admTab('cats')">分類</button>
         <button class="atab" onclick="admTab('about')">介紹頁</button>
-        <button class="atab" onclick="admTab('settings')">設定</button>
+        <button class="atab on" onclick="admTab('settings')">設定</button>
         <button class="atab" onclick="admTab('mems')">會員</button>
         <button class="atab" onclick="admTab('ords')">訂單</button>
         <button class="atab" onclick="admTab('cps')">優惠券</button>
       </div>
 
       <!-- PRODUCTS -->
-      <div class="adm-sec on" id="adm-prods">
+      <div class="adm-sec" id="adm-prods">
         <button class="b-add" onclick="showProdForm()">＋ 新增商品</button>
         <div class="adm-form" id="prodForm">
           <div class="adm-form-title" id="prodFormTitle">新增商品</div>
@@ -655,7 +651,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
           <button class="adm-save" onclick="saveProd()">儲存商品</button>
           <button class="adm-cancel" onclick="document.getElementById('prodForm').classList.remove('vis')">取消</button>
         </div>
-        <div id="admProdList" style="margin-top:12px"></div>
+        <div id="admProdList" style="margin-top:12px"><div class="ali"><div class="ali-name"><div style="font-weight:600">方晶鋯石戒指</div><div style="font-size:10px;color:var(--muted)">飾品 · 戒指</div></div><div class="ali-price">$890</div><div class="ali-acts"><button class="bsm b-edit" onclick="editProd(0)">編輯</button><button class="bsm b-del" onclick="delProd(0)">刪除</button></div></div></div>
       </div>
 
       <!-- CAROUSEL -->
@@ -667,13 +663,13 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
           <div class="form-g"><label class="f-lbl">副標題</label><input class="f-inp" id="cSub" placeholder="例：精選韓系服飾，現正熱銷中"></div>
           <div class="form-g"><label class="f-lbl">標籤文字</label><input class="f-inp" id="cTag" placeholder="例：NEW · 新品"></div>
           <div class="form-g"><label class="f-lbl">按鈕文字</label><input class="f-inp" id="cBtn" value="立即選購"></div>
-          <div class="form-g"><label class="f-lbl">點擊導至分類</label><select class="f-inp" id="cLinkCat"></select></div>
+          <div class="form-g"><label class="f-lbl">點擊導至分類</label><select class="f-inp" id="cLinkCat"><option value="">不指定分類</option><option value="all">所有商品</option><option value="clothing">服飾</option><option value="accessories">飾品</option><option value="shoes">鞋子</option><option value="perfume">香水</option><option value="beauty">美妝保養</option><option value="snacks">零食</option><option value="home">家居</option><option value="new">🆕 新品上市</option><option value="sale">🔥 限時優惠</option><option value="event">🎉 活動專區</option></select></div>
           <div class="form-g"><label class="f-lbl">背景圖片 URL（選填）</label><input class="f-inp" id="cImg" placeholder="https://..."></div>
           <input type="hidden" id="cEditIdx" value="-1">
           <button class="adm-save" onclick="saveCar()">儲存</button>
           <button class="adm-cancel" onclick="document.getElementById('carForm').classList.remove('vis')">取消</button>
         </div>
-        <div id="admCarList" style="margin-top:12px"></div>
+        <div id="admCarList" style="margin-top:12px"><div class="ali"><div class="ali-name">夏日新品上架 ✨</div><div class="ali-acts"><button class="bsm b-edit" onclick="editCar(0)">編輯</button><button class="bsm b-del" onclick="delCar(0)">刪除</button></div></div><div class="ali"><div class="ali-name">限時優惠特賣 🔥</div><div class="ali-acts"><button class="bsm b-edit" onclick="editCar(1)">編輯</button><button class="bsm b-del" onclick="delCar(1)">刪除</button></div></div><div class="ali"><div class="ali-name">香水代購開團 🌸</div><div class="ali-acts"><button class="bsm b-edit" onclick="editCar(2)">編輯</button><button class="bsm b-del" onclick="delCar(2)">刪除</button></div></div></div>
       </div>
 
       <!-- CATEGORIES -->
@@ -693,11 +689,11 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
             <button class="b-add" onclick="addParent()" style="flex-shrink:0">新增</button>
           </div>
         </div>
-        <div id="admCatList"></div>
+        <div id="admCatList"><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">服飾</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('clothing')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('clothing')">刪除</button></div></div><div class="cat-body"><div class="sub-row"><span class="sub-name">上衣</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('clothing','上衣')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('clothing','上衣')">刪除</button></div></div><div class="sub-row"><span class="sub-name">下裝</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('clothing','下裝')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('clothing','下裝')">刪除</button></div></div><div class="sub-row"><span class="sub-name">裙子</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('clothing','裙子')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('clothing','裙子')">刪除</button></div></div><div class="sub-row"><span class="sub-name">外套</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('clothing','外套')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('clothing','外套')">刪除</button></div></div><div class="sub-row"><span class="sub-name">套裝</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('clothing','套裝')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('clothing','套裝')">刪除</button></div></div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">飾品</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('accessories')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('accessories')">刪除</button></div></div><div class="cat-body"><div class="sub-row"><span class="sub-name">耳飾</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','耳飾')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','耳飾')">刪除</button></div></div><div class="sub-row"><span class="sub-name">項鍊</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','項鍊')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','項鍊')">刪除</button></div></div><div class="sub-row"><span class="sub-name">戒指</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','戒指')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','戒指')">刪除</button></div></div><div class="sub-row"><span class="sub-name">手鍊</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','手鍊')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','手鍊')">刪除</button></div></div><div class="sub-row"><span class="sub-name">髮飾</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','髮飾')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','髮飾')">刪除</button></div></div><div class="sub-row"><span class="sub-name">帽子</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','帽子')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','帽子')">刪除</button></div></div><div class="sub-row"><span class="sub-name">墨鏡</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','墨鏡')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','墨鏡')">刪除</button></div></div><div class="sub-row"><span class="sub-name">腰鍊</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','腰鍊')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','腰鍊')">刪除</button></div></div><div class="sub-row"><span class="sub-name">包包</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','包包')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','包包')">刪除</button></div></div><div class="sub-row"><span class="sub-name">其他</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('accessories','其他')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('accessories','其他')">刪除</button></div></div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">鞋子</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('shoes')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('shoes')">刪除</button></div></div><div class="cat-body"><div class="sub-row"><span class="sub-name">Nike</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('shoes','Nike')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('shoes','Nike')">刪除</button></div></div><div class="sub-row"><span class="sub-name">Adidas</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('shoes','Adidas')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('shoes','Adidas')">刪除</button></div></div><div class="sub-row"><span class="sub-name">New Balance</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('shoes','New Balance')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('shoes','New Balance')">刪除</button></div></div><div class="sub-row"><span class="sub-name">Converse</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('shoes','Converse')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('shoes','Converse')">刪除</button></div></div><div class="sub-row"><span class="sub-name">Vans</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('shoes','Vans')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('shoes','Vans')">刪除</button></div></div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">香水</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('perfume')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('perfume')">刪除</button></div></div><div class="cat-body"><div class="sub-row"><span class="sub-name">Chanel</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('perfume','Chanel')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('perfume','Chanel')">刪除</button></div></div><div class="sub-row"><span class="sub-name">Dior</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('perfume','Dior')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('perfume','Dior')">刪除</button></div></div><div class="sub-row"><span class="sub-name">Jo Malone</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('perfume','Jo Malone')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('perfume','Jo Malone')">刪除</button></div></div><div class="sub-row"><span class="sub-name">YSL</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('perfume','YSL')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('perfume','YSL')">刪除</button></div></div><div class="sub-row"><span class="sub-name">Maison Margiela</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('perfume','Maison Margiela')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('perfume','Maison Margiela')">刪除</button></div></div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">美妝保養</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('beauty')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('beauty')">刪除</button></div></div><div class="cat-body"><div class="sub-row"><span class="sub-name">底妝</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('beauty','底妝')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('beauty','底妝')">刪除</button></div></div><div class="sub-row"><span class="sub-name">彩妝</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('beauty','彩妝')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('beauty','彩妝')">刪除</button></div></div><div class="sub-row"><span class="sub-name">卸妝</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('beauty','卸妝')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('beauty','卸妝')">刪除</button></div></div><div class="sub-row"><span class="sub-name">保養</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('beauty','保養')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('beauty','保養')">刪除</button></div></div><div class="sub-row"><span class="sub-name">其他</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:2px 6px;background:#f0f0f0;color:#666" onclick="togSubHide('beauty','其他')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:2px 6px" onclick="delSubCat('beauty','其他')">刪除</button></div></div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">零食</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('snacks')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('snacks')">刪除</button></div></div><div class="cat-body"><div style="font-size:11px;color:var(--muted)">尚無子分類</div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">家居</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('home')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('home')">刪除</button></div></div><div class="cat-body"><div style="font-size:11px;color:var(--muted)">尚無子分類</div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">🆕 新品上市</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('new')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('new')">刪除</button></div></div><div class="cat-body"><div style="font-size:11px;color:var(--muted)">尚無子分類</div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">🔥 限時優惠</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('sale')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('sale')">刪除</button></div></div><div class="cat-body"><div style="font-size:11px;color:var(--muted)">尚無子分類</div></div></div><div class="cat-card"><div class="cat-hdr"><span class="cat-hdr-name" style="">🎉 活動專區</span><div class="ali-acts"><button class="bsm" style="font-size:9px;padding:3px 7px" onclick="togCatHide('event')">隱藏</button><button class="bsm b-del" style="font-size:9px;padding:3px 7px" onclick="delParentCat('event')">刪除</button></div></div><div class="cat-body"><div style="font-size:11px;color:var(--muted)">尚無子分類</div></div></div></div>
         <div style="margin-top:12px;background:var(--alt);padding:12px;border-radius:var(--rs)">
           <div class="adm-form-title">＋ 新增子分類</div>
           <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-top:6px">
-            <div><label class="f-lbl">父分類</label><select class="f-inp" id="nsParent" style="min-width:100px"></select></div>
+            <div><label class="f-lbl">父分類</label><select class="f-inp" id="nsParent" style="min-width:100px"><option value="clothing">服飾</option><option value="accessories">飾品</option><option value="shoes">鞋子</option><option value="perfume">香水</option><option value="beauty">美妝保養</option><option value="snacks">零食</option><option value="home">家居</option><option value="new">🆕 新品上市</option><option value="sale">🔥 限時優惠</option><option value="event">🎉 活動專區</option></select></div>
             <div style="flex:1;min-width:90px"><label class="f-lbl">子分類名稱</label><input class="f-inp" id="nsName" placeholder="例：Nike"></div>
             <button class="b-add" onclick="addSub()">新增</button>
           </div>
@@ -710,13 +706,13 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <div class="form-g"><label class="f-lbl">副標題</label><input class="f-inp" id="aSub"></div>
         <div class="form-g"><label class="f-lbl">自我介紹</label><textarea class="f-inp" id="aIntro" rows="5"></textarea></div>
         <div style="font-weight:700;font-size:12px;margin:12px 0 8px;color:var(--adk)">📌 各說明區塊</div>
-        <div id="aBlocks"></div>
+        <div id="aBlocks"><div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:11px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:var(--adk)">區塊 1</span><div style="display:flex;gap:3px"><button class="bsm b-edit" onclick="mvABlock(0,1)">↓</button><button class="bsm b-del" onclick="delABlock(0)">刪除</button></div></div><div class="form-g"><label class="f-lbl">標題</label><input class="f-inp" id="abt0" value=""></div><div class="form-g"><label class="f-lbl">內文</label><textarea class="f-inp" id="abc0" rows="2"></textarea></div><div class="form-g"><label class="f-lbl">警示文字（⚠️ 橘色）</label><textarea class="f-inp" id="abw0" rows="2"></textarea></div></div><div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:11px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:var(--adk)">區塊 2</span><div style="display:flex;gap:3px"><button class="bsm b-edit" onclick="mvABlock(1,-1)">↑</button><button class="bsm b-edit" onclick="mvABlock(1,1)">↓</button><button class="bsm b-del" onclick="delABlock(1)">刪除</button></div></div><div class="form-g"><label class="f-lbl">標題</label><input class="f-inp" id="abt1" value=""></div><div class="form-g"><label class="f-lbl">內文</label><textarea class="f-inp" id="abc1" rows="2"></textarea></div><div class="form-g"><label class="f-lbl">警示文字（⚠️ 橘色）</label><textarea class="f-inp" id="abw1" rows="2"></textarea></div></div><div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:11px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:var(--adk)">區塊 3</span><div style="display:flex;gap:3px"><button class="bsm b-edit" onclick="mvABlock(2,-1)">↑</button><button class="bsm b-edit" onclick="mvABlock(2,1)">↓</button><button class="bsm b-del" onclick="delABlock(2)">刪除</button></div></div><div class="form-g"><label class="f-lbl">標題</label><input class="f-inp" id="abt2" value=""></div><div class="form-g"><label class="f-lbl">內文</label><textarea class="f-inp" id="abc2" rows="2"></textarea></div><div class="form-g"><label class="f-lbl">警示文字（⚠️ 橘色）</label><textarea class="f-inp" id="abw2" rows="2"></textarea></div></div><div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:11px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:var(--adk)">區塊 4</span><div style="display:flex;gap:3px"><button class="bsm b-edit" onclick="mvABlock(3,-1)">↑</button><button class="bsm b-edit" onclick="mvABlock(3,1)">↓</button><button class="bsm b-del" onclick="delABlock(3)">刪除</button></div></div><div class="form-g"><label class="f-lbl">標題</label><input class="f-inp" id="abt3" value=""></div><div class="form-g"><label class="f-lbl">內文</label><textarea class="f-inp" id="abc3" rows="2"></textarea></div><div class="form-g"><label class="f-lbl">警示文字（⚠️ 橘色）</label><textarea class="f-inp" id="abw3" rows="2"></textarea></div></div><div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:11px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11px;font-weight:700;color:var(--adk)">區塊 5</span><div style="display:flex;gap:3px"><button class="bsm b-edit" onclick="mvABlock(4,-1)">↑</button><button class="bsm b-del" onclick="delABlock(4)">刪除</button></div></div><div class="form-g"><label class="f-lbl">標題</label><input class="f-inp" id="abt4" value=""></div><div class="form-g"><label class="f-lbl">內文</label><textarea class="f-inp" id="abc4" rows="2"></textarea></div><div class="form-g"><label class="f-lbl">警示文字（⚠️ 橘色）</label><textarea class="f-inp" id="abw4" rows="2"></textarea></div></div></div>
         <button class="b-add" onclick="addABlock()" style="margin-bottom:12px">＋ 新增區塊</button>
         <button class="adm-save" onclick="saveAbout()">儲存介紹頁</button>
       </div>
 
       <!-- SETTINGS -->
-      <div class="adm-sec" id="adm-settings">
+      <div class="adm-sec on" id="adm-settings">
         <div class="adm-form-title">🖼️ Logo 設定</div>
         <div class="form-g"><label class="f-lbl">Logo 圖片 URL（推薦 imgur.com）</label><input class="f-inp" id="sLogo" placeholder="https://..."></div>
         <div id="logoPreview" style="margin:7px 0 10px"></div>
@@ -733,12 +729,12 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
           <button class="bsm b-edit" style="padding:9px 13px;font-size:12px" onclick="document.getElementById('importBox').style.display='block'">📥 匯入</button>
           <button class="bsm" style="padding:9px 13px;font-size:12px;background:#e8f5ed;color:var(--ok)" onclick="pushToFB()">🔄 同步Firebase</button>
         </div>
-        <div id="exportBox" style="display:none;margin-bottom:10px">
-          <textarea id="exportTxt" class="f-inp" rows="3" readonly style="font-size:10px;font-family:monospace;word-break:break-all"></textarea>
+        <div id="exportBox" style="display: block; margin-bottom: 10px;">
+          <textarea id="exportTxt" class="f-inp" rows="3" readonly="" style="font-size:10px;font-family:monospace;word-break:break-all"></textarea>
           <button class="bsm b-edit" style="margin-top:5px;padding:7px 12px" onclick="copyExport()">📋 複製</button>
           <span id="copyDone" style="font-size:11px;color:var(--ok);margin-left:7px;display:none">已複製 ✅</span>
         </div>
-        <div id="importBox" style="display:none;margin-bottom:10px">
+        <div id="importBox" style="display: block; margin-bottom: 10px;">
           <textarea id="importTxt" class="f-inp" rows="3" style="font-size:10px;font-family:monospace" placeholder="貼上匯出代碼…"></textarea>
           <button class="adm-save" onclick="importData()" style="margin-top:5px">確認匯入</button>
           <div style="font-size:10px;color:var(--danger);margin-top:3px">⚠️ 匯入會覆蓋所有商品分類資料</div>
@@ -751,7 +747,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
         <div class="form-g"><label class="f-lbl">Apps Script 部署網址</label><input class="f-inp" id="gsUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
         <button class="adm-save" onclick="saveGsUrl()">儲存網址</button>
         <button class="bsm b-edit" style="padding:9px 13px;font-size:12px;margin-left:6px" onclick="testGsUrl()">測試連線</button>
-        <div id="gsUrlDownloadBox" style="display:none;margin-top:12px;background:#e8f5e9;border:1.5px solid #81c784;border-radius:var(--rs);padding:12px">
+        <div id="gsUrlDownloadBox" style="display: block; margin-top: 12px; background: rgb(232, 245, 233); border: 1.5px solid rgb(129, 199, 132); border-radius: var(--rs); padding: 12px;">
           <div style="font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px">⚠️ 重要！請下載並重新上傳 GitHub</div>
           <div style="font-size:11px;color:#388e3c;margin-bottom:8px;line-height:1.7">設定好的網址需要寫進 HTML 檔案，這樣所有裝置才能讀到。<br>點下方按鈕下載含網址的新版本，再上傳到 GitHub 取代舊的。</div>
           <button class="adm-save" style="background:#2e7d32" onclick="downloadWithUrl()">⬇️ 下載含網址的 HTML</button>
@@ -760,7 +756,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
       </div>
 
       <!-- MEMBERS -->
-      <div class="adm-sec" id="adm-mems"><div id="admMemList"></div></div>
+      <div class="adm-sec" id="adm-mems"><div id="admMemList"><div class="ali"><div class="ali-name"><div style="font-weight:600">陳怡臻</div><div style="font-size:10px;color:var(--muted)">cyjxx911015@gmail.com</div></div><div class="ali-acts"><button class="bsm b-view" onclick="viewMem('cyjxx911015@gmail.com')">詳情</button></div></div><div class="ali"><div class="ali-name"><div style="font-weight:600">Y</div><div style="font-size:10px;color:var(--muted)">1234@gmail.com</div></div><div class="ali-acts"><button class="bsm b-view" onclick="viewMem('1234@gmail.com')">詳情</button></div></div></div></div>
 
       <!-- ORDERS -->
       <div class="adm-sec" id="adm-ords">
@@ -777,7 +773,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
           <button class="adm-save" onclick="submitAdmOrd()">建立訂單</button>
           <button class="adm-cancel" onclick="document.getElementById('newOrdForm').classList.remove('vis')">取消</button>
         </div>
-        <div id="admOrdList" style="margin-top:10px"></div>
+        <div id="admOrdList" style="margin-top:10px"><div style="color:var(--muted);padding:12px 0">尚無訂單</div></div>
       </div>
 
       <!-- COUPONS -->
@@ -797,12 +793,12 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
           <button class="adm-save" onclick="saveCp()">儲存優惠券</button>
           <button class="adm-cancel" onclick="document.getElementById('cpForm').classList.remove('vis')">取消</button>
         </div>
-        <div id="admCpList" style="margin-top:12px"></div>
+        <div id="admCpList" style="margin-top:12px"><div class="ali"><div class="ali-name"><div style="font-weight:700;font-family:monospace;color:var(--adk)">H1</div><div style="font-size:10px;color:var(--muted)">折 $undefined · 限用一次 · 新會員</div></div><div class="ali-acts"><button class="bsm b-edit" onclick="editCp(0)">編輯</button><button class="bsm b-del" onclick="delCp(0)">刪除</button></div></div><div class="ali"><div class="ali-name"><div style="font-weight:700;font-family:monospace;color:var(--adk)">我</div><div style="font-size:10px;color:var(--muted)">10% OFF · 限用一次 · 到2026-07-11</div></div><div class="ali-acts"><button class="bsm b-edit" onclick="editCp(1)">編輯</button><button class="bsm b-del" onclick="delCp(1)">刪除</button></div></div></div>
         <hr class="div">
         <div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--adk)">發送優惠券給會員</div>
         <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:flex-end">
-          <div class="form-g" style="margin:0;flex:1;min-width:100px"><label class="f-lbl">優惠券</label><select class="f-inp" id="cpSendCode"></select></div>
-          <div class="form-g" style="margin:0;flex:1;min-width:100px"><label class="f-lbl">發送對象</label><select class="f-inp" id="cpSendTarget"><option value="all">所有會員</option></select></div>
+          <div class="form-g" style="margin:0;flex:1;min-width:100px"><label class="f-lbl">優惠券</label><select class="f-inp" id="cpSendCode"><option value="H1">H1</option><option value="我">我</option></select></div>
+          <div class="form-g" style="margin:0;flex:1;min-width:100px"><label class="f-lbl">發送對象</label><select class="f-inp" id="cpSendTarget"><option value="all">所有會員</option><option value="cyjxx911015@gmail.com">陳怡臻</option><option value="1234@gmail.com">Y</option></select></div>
           <button class="b-add" onclick="sendCp()">發送</button>
         </div>
       </div>
@@ -822,19 +818,19 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
 </div>
 
 <!-- ── GEAR + LINE + TOAST + SYNC ── -->
-<button class="gear-btn" id="gearBtn" onclick="openAdm()" style="display:none">⚙️</button>
-<a class="line-float" href="https://line.me/R/ti/p/@527wiirs?from=page&searchId=527wiirs" target="_blank">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.16 1.72 5.95 4.34 7.67L6 22l3.38-1.77C10.2 20.72 11.08 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+<button class="gear-btn" id="gearBtn" onclick="openAdm()">⚙️</button>
+<a class="line-float" href="https://line.me/R/ti/p/@527wiirs?from=page&amp;searchId=527wiirs" target="_blank">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.16 1.72 5.95 4.34 7.67L6 22l3.38-1.77C10.2 20.72 11.08 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"></path></svg>
   聯絡客服
 </a>
-<div class="sync-bar" id="syncBar"><div class="sync-dot" id="syncDot"></div><span id="syncTxt">已同步</span></div>
-<div class="toast" id="toast"></div>
+<div class="sync-bar vis" id="syncBar"><div class="sync-dot spin" id="syncDot"></div><span id="syncTxt">同步中…</span></div>
+<div class="toast vis" id="toast">Google Sheets 連線正常 ✅ 正在載入資料…</div>
 <script>
 // ╔══════════════════════════════════════════════════════╗
 // ║  GOOGLE SHEETS API                                   ║
 // ║  請將下方網址換成你的 Apps Script 部署網址            ║
 // ╚══════════════════════════════════════════════════════╝
-var GS_URL = ''; // ← 部署後貼上網址（格式：https://script.google.com/macros/s/xxx/exec）
+var GS_URL = 'https://script.google.com/macros/s/AKfycbxP-bSORGbPokUZx20cI4Hd3UvQONcffJyZ_e-OE3Wy3XlX-rSkGyRXq5O9Wu9quxLqKg/exec'; // ← 部署後貼上網址（格式：https://script.google.com/macros/s/xxx/exec）
 var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders','hailey_users'];
 
 function gsGet(key, cb) {
@@ -2234,7 +2230,7 @@ function downloadWithUrl(){
   // 更新 meta gs-url
   source=source.replace(
     /<meta name="gs-url" content="[^"]*">/,
-    '<meta name="gs-url" content="'+GS_URL+'">'
+    '<meta name="gs-url" content="https://script.google.com/macros/s/AKfycbxP-bSORGbPokUZx20cI4Hd3UvQONcffJyZ_e-OE3Wy3XlX-rSkGyRXq5O9Wu9quxLqKg/exec">'
   );
   var blob=new Blob([source],{type:'text/html'});
   var a=document.createElement('a');
@@ -2303,5 +2299,6 @@ function init(){
 }
 init();
 </script>
-</body>
-</html>
+
+
+</body></html>
