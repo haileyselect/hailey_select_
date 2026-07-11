@@ -437,6 +437,15 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
             <div class="store-detail" id="sdFam"><label class="f-lbl" style="margin-bottom:4px">常用門市（地址選填）</label><input class="f-inp" id="mFams" placeholder="例：桃園元富店"></div>
           </div>
         </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+        <div class="form-g">
+          <label class="f-lbl">修改密碼</label>
+          <input class="f-inp" id="memNewPw" type="password" placeholder="輸入新密碼（至少 6 位數，留空不更改）">
+        </div>
+        <div class="form-g">
+          <label class="f-lbl">確認新密碼</label>
+          <input class="f-inp" id="memNewPw2" type="password" placeholder="再次輸入新密碼">
+        </div>
         <button class="save-btn" onclick="saveMem()">儲存變更</button>
       </div>
       <div class="mtab-pane" id="mt-orders"><div id="myOrders"></div></div>
@@ -821,7 +830,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
 // ║  請將下方網址換成你的 Apps Script 部署網址            ║
 // ╚══════════════════════════════════════════════════════╝
 var GS_URL = ''; // ← 部署後貼上網址（格式：https://script.google.com/macros/s/xxx/exec）
-var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders','hailey_users'];
+var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders'];
 
 function gsGet(key, cb) {
   if(!GS_URL){ cb(null, null); return; }
@@ -953,7 +962,7 @@ function loadFB() {
       // 第一次使用：把本地資料存到試算表
       var logoVal=localStorage.getItem('hailey_logo')||'';
       GS_KEYS.forEach(function(k){
-        var map={hailey_cats:cats,hailey_prods:prods,hailey_carousel:carData,hailey_about:about,hailey_pay:payInfo,hailey_coupons:coupons,hailey_logo:logoVal,hailey_orders:orders,hailey_users:users};
+        var map={hailey_cats:cats,hailey_prods:prods,hailey_carousel:carData,hailey_about:about,hailey_pay:payInfo,hailey_coupons:coupons,hailey_logo:logoVal,hailey_orders:orders};
         if(map[k]) gsSet(k, map[k]);
       });
       showSync('ok','初始化完成 ✅'); return;
@@ -1465,8 +1474,20 @@ function saveMem(){
   me.name=id('mName').value.trim(); me.gender=id('mGender').value;
   me.phone=id('mPhone').value.trim(); me.birth=id('mBirth').value;
   me.ship={face:id('mFace').checked,s711:id('m711').checked,s711s:id('m711s').value.trim(),fam:id('mFam').checked,fams:id('mFams').value.trim()};
+  // 密碼修改
+  var newPw=(id('memNewPw').value||'').trim();
+  var newPw2=(id('memNewPw2').value||'').trim();
+  if(newPw){
+    if(newPw.length<6){ toast('新密碼至少需要 6 位數'); return; }
+    if(newPw!==newPw2){ toast('兩次密碼不一致，請重新輸入'); return; }
+    me.pw=newPw;
+    id('memNewPw').value=''; id('memNewPw2').value='';
+    toast('密碼已更新，下次登入請使用新密碼 ✅');
+  } else {
+    toast('會員資訊已儲存 ✅');
+  }
   var idx=users.findIndex(function(u){ return u.email===me.email; });
-  if(idx>-1) users[idx]=me; LS.set('hailey_users',users); updNavAuth(); toast('會員資訊已儲存 ✅');
+  if(idx>-1) users[idx]=me; LS.set('hailey_users',users); updNavAuth();
 }
 function renderMyOrds(){
   var el=id('myOrders'); if(!el) return;
@@ -1517,7 +1538,16 @@ function togAuth(){
 }
 function doLogin(){
   var email=(id('loginEmail').value||'').trim(), pw=id('loginPw').value;
+  // 先找本地 users
   var user=users.find(function(u){ return u.email===email&&u.pw===pw; });
+  // 管理員備用：若本地找不到，用硬編碼驗證
+  if(!user&&email==='admin@hailey.com'&&pw==='admin123'){
+    user={email:'admin@hailey.com',pw:'admin123',name:'Hailey',admin:true,gender:'女',phone:'',birth:'',ship:{face:true,s711:false,s711s:'',fam:false,fams:''}};
+    // 修復本地 users 裡的管理員帳號
+    var adminIdx=users.findIndex(function(u){ return u.email==='admin@hailey.com'; });
+    if(adminIdx>-1) users[adminIdx]=user; else users.unshift(user);
+    localStorage.setItem('hailey_users',JSON.stringify(users));
+  }
   if(!user){ showLoginErr('Email 或密碼錯誤'); return; }
   loginOK(user);
 }
@@ -1858,7 +1888,7 @@ function viewMem(email){
     +'<div class="f-row"><div class="form-g"><label class="f-lbl">電話</label><input class="f-inp" id="mdPhone" value="'+esc(u.phone||'')+'"></div>'
     +'<div class="form-g"><label class="f-lbl">生日</label><input class="f-inp" id="mdBirth" type="date" value="'+esc(u.birth||'')+'"></div></div>'
     +'<div class="form-g"><label class="f-lbl">Email</label><input class="f-inp" id="mdEmail" value="'+esc(u.email)+'"></div>'
-    +'<div class="form-g"><label class="f-lbl">密碼（留空不更改）</label><input class="f-inp" id="mdPw" type="text" placeholder="新密碼"></div>'
+    +'<div class="form-g"><label class="f-lbl">重設密碼（留空不更改）</label><input class="f-inp" id="mdPw" type="text" placeholder="輸入新密碼（至少 6 位數）"></div>'
     +'<div class="form-g"><label class="f-lbl">寄送方式</label>'
     +'<div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">'
     +'<label style="display:flex;align-items:center;gap:6px;font-size:12px"><input type="checkbox" id="mdFace"'+(shipS.face?' checked':'')+' style="accent-color:var(--accent)"> 桃園區面交</label>'
