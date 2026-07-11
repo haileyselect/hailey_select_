@@ -888,6 +888,19 @@ function safeUsers(usersArr){
 // ╚══════════════════════════════════════════════════════╝
 function id(x){ return document.getElementById(x); }
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function imgErr(el){
+  // 圖片載入失敗：顯示佔位符
+  try{
+    el.style.display='none';
+    var wrap=el.parentElement;
+    if(wrap){
+      var ph=document.createElement('div');
+      ph.className='pcard-noimg';
+      ph.textContent='🛍';
+      wrap.appendChild(ph);
+    }
+  }catch(e){}
+}
 
 var LS = {
   get: function(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
@@ -1222,7 +1235,7 @@ function renderProds(){
   filtered.forEach(function(p){
     var ri=prods.indexOf(p), ps=priceStr(p);
     var ci=(Array.isArray(p.imgs)&&p.imgs[0])?p.imgs[0]:(p.img||'');
-    var imgH=ci?('<img src="'+esc(ci)+'" alt="'+esc(p.name)+'" onerror="this.parentElement.innerHTML=\'<div class=pcard-noimg>\uD83D\uDECD</div>\'">'):'<div class="pcard-noimg">🛍</div>';
+    var imgH=ci?('<img src="'+esc(ci)+'" alt="'+esc(p.name)+'" onerror="imgErr(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover">'):'<div class="pcard-noimg">🛍</div>';
     var bc=(p.badge||'').toLowerCase()==='new'?' new-b':'';
     var bdg=p.badge?('<div class="pcard-badge'+bc+'">'+esc(p.badge)+'</div>'):'';
     html+='<div class="pcard" onclick="openProd('+ri+')">'+'<div class="pcard-img-wrap">'+imgH+bdg+'</div>'+'<div class="pcard-body"><div class="pcard-name">'+esc(p.name)+'</div><div class="pcard-price">'+ps+'</div></div></div>';
@@ -1947,10 +1960,13 @@ function importData(){
 function renderAdmMems(){
   var list=id('admMemList'); if(!list) return;
   var regular=users.filter(function(u){ return !u.admin; });
-  if(!regular.length){ list.innerHTML='<div style="color:var(--muted);padding:12px 0">尚無會員</div>'; return; }
-  var html='';
+  var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<span style="font-size:12px;color:var(--muted)">共 '+regular.length+' 位會員</span>'
+    +'<button class="bsm b-edit" style="padding:5px 10px;font-size:11px" onclick="reloadMems()">🔄 重新載入</button>'
+    +'</div>';
+  if(!regular.length){ list.innerHTML=html+'<div style="color:var(--muted);padding:12px 0">尚無會員（若有會員請點重新載入）</div>'; return; }
   regular.forEach(function(u,i){
-    html+='<div class="ali"><div class="ali-name"><div style="font-weight:600">'+esc(u.name||'（未填）')+'</div><div style="font-size:10px;color:var(--muted)">'+esc(u.email)+'</div></div><div class="ali-acts"><button class="bsm b-view" onclick="viewMem(\''+esc(u.email)+'\')">詳情</button></div></div>';
+    html+='<div class="ali"><div class="ali-name"><div style="font-weight:600">'+esc(u.name||'（未填）')+'</div><div style="font-size:10px;color:var(--muted)">'+esc(u.email)+'</div></div><div class="ali-acts"><button class="bsm b-view" data-memail="'+esc(u.email)+'" onclick="viewMemBtn(this)">詳情</button></div></div>';
   });
   list.innerHTML=html;
   var cpTarget=id('cpSendTarget');
@@ -1958,6 +1974,34 @@ function renderAdmMems(){
     cpTarget.innerHTML='<option value="all">所有會員</option>';
     regular.forEach(function(u){ cpTarget.innerHTML+='<option value="'+esc(u.email)+'">'+esc(u.name||u.email)+'</option>'; });
   }
+}
+function reloadMems(){
+  var ml=id('admMemList'); if(ml) ml.innerHTML='<div style="color:var(--muted);padding:12px">重新載入中…</div>';
+  gsGet('hailey_users', function(err, data){
+    if(err){ toast('載入失敗：'+err.message); renderAdmMems(); return; }
+    if(data && Array.isArray(data)){
+      // 完整替換（保留本地密碼）
+      data.forEach(function(gsU){
+        if(gsU.admin) return;
+        var li=users.findIndex(function(u){ return u.email===gsU.email; });
+        if(li>-1){
+          var kp=users[li].pw; var kph=users[li].pwh;
+          users[li]=Object.assign({},gsU,{pw:kp,pwh:kph});
+        } else {
+          users.push(gsU);
+        }
+      });
+      localStorage.setItem('hailey_users',JSON.stringify(users));
+      toast('已重新載入 '+data.filter(function(u){ return !u.admin; }).length+' 位會員 ✅');
+    } else {
+      toast('GS 回傳空資料');
+    }
+    renderAdmMems();
+  });
+}
+function viewMemBtn(btn){
+  var email=btn.dataset.memail;
+  if(email) viewMem(email);
 }
 function viewMem(email){
   var u=users.find(function(u){ return u.email===email; }); if(!u) return;
