@@ -12,6 +12,9 @@
   --txt:#2A2420;--muted:#8C7B6E;--danger:#D4544A;--ok:#5A9B72;
   --nh:58px;--r:12px;--rs:8px;
   --sh:0 2px 12px rgba(0,0,0,.06);--shl:0 8px 32px rgba(0,0,0,.10);
+  /* 可自訂 */
+  --car-title-color:#2A2420;--car-sub-color:#8C7B6E;--car-tag-bg:#C4A882;--car-tag-color:#fff;
+  --car-btn-bg:#C4A882;--car-btn-color:#fff;--car-overlay:rgba(255,255,255,.0);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--txt);font-size:14px;-webkit-font-smoothing:antialiased}
@@ -54,11 +57,11 @@ img{display:block;max-width:100%}
 @media(min-width:600px){.car-slide{height:420px}}
 .car-slide-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5}
 .car-content{position:relative;z-index:1;text-align:center;padding:20px}
-.car-tag{display:inline-block;background:var(--accent);color:#fff;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.1em;margin-bottom:8px}
-.car-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--txt);margin-bottom:5px;line-height:1.25}
+.car-tag{display:inline-block;background:var(--car-tag-bg);color:var(--car-tag-color);padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.1em;margin-bottom:8px}
+.car-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--car-title-color);margin-bottom:5px;line-height:1.25}
 @media(min-width:600px){.car-title{font-size:38px}}
-.car-sub{color:var(--muted);font-size:12px;margin-bottom:14px}
-.car-btn{padding:9px 22px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:700;transition:background .2s}
+.car-sub{color:var(--car-sub-color);font-size:12px;margin-bottom:14px}
+.car-btn{padding:9px 22px;background:var(--car-btn-bg);color:var(--car-btn-color);border:none;border-radius:var(--rs);font-size:13px;font-weight:700;transition:all .2s}
 .car-btn:hover{background:var(--adk)}
 .car-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);border:none;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .car-arrow:hover{background:#fff}
@@ -69,21 +72,23 @@ img{display:block;max-width:100%}
 
 /* ── CAT BARS ── */
 .cat-bar{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:var(--nh);z-index:80}
+.citem.dragging{opacity:.4;background:var(--alt)}
+.citem.drag-over{border-left:3px solid var(--accent)}
 .cat-scroll{display:flex;overflow-x:auto;padding:0 8px;scrollbar-width:none}
 .cat-scroll::-webkit-scrollbar{display:none}
 .citem{padding:12px 12px;white-space:nowrap;border:none;background:transparent;font-size:12px;color:var(--muted);font-weight:500;position:relative;cursor:pointer;flex-shrink:0;transition:color .2s}
 .citem::after{content:'';position:absolute;bottom:0;left:8px;right:8px;height:2px;background:var(--accent);border-radius:1px;transform:scaleX(0);transition:transform .2s}
 .citem.on{color:var(--adk);font-weight:700}
 .citem.on::after{transform:scaleX(1)}
-.scat-bar{background:#fff;border-bottom:2px solid var(--border);padding:6px 12px;display:none;flex-wrap:wrap;gap:6px}
+.scat-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:10px 14px;display:none;flex-wrap:wrap;gap:8px;justify-content:center}
 .scat-bar.vis{display:flex}
-.scat-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s}
-.scat-btn.new-s{border-color:#6eb8a0;color:#3a7a62}
-.scat-btn.new-s.on{background:#6eb8a0;color:#fff}
-.scat-btn.sale-s{border-color:#e07b5a;color:#b85a35}
-.scat-btn.sale-s.on{background:#e07b5a;color:#fff}
-.scat-btn.event-s{border-color:#9b7fd4;color:#6a4fa8}
-.scat-btn.event-s.on{background:#9b7fd4;color:#fff}
+.scat-btn{padding:10px 20px;border-radius:24px;border:2px solid var(--border);background:#fff;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .22s;white-space:nowrap}
+.scat-btn.new-s{border-color:#6eb8a0;color:#3a7a62;background:#f0faf7}
+.scat-btn.new-s.on{background:#6eb8a0;border-color:#6eb8a0;color:#fff;box-shadow:0 4px 14px rgba(110,184,160,.35)}
+.scat-btn.sale-s{border-color:#e07b5a;color:#b85a35;background:#fff8f5}
+.scat-btn.sale-s.on{background:#e07b5a;border-color:#e07b5a;color:#fff;box-shadow:0 4px 14px rgba(224,123,90,.35)}
+.scat-btn.event-s{border-color:#9b7fd4;color:#6a4fa8;background:#f8f5ff}
+.scat-btn.event-s.on{background:#9b7fd4;border-color:#9b7fd4;color:#fff;box-shadow:0 4px 14px rgba(155,127,212,.35)}
 .sub-bar{background:#faf8f5;border-bottom:1px solid var(--border);padding:7px 12px;display:none;flex-wrap:wrap;gap:5px}
 .sub-bar.vis{display:flex}
 .sub-chip{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11px;color:var(--muted);cursor:pointer;transition:all .2s}
@@ -743,6 +748,33 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
           <button class="adm-save" onclick="importData()" style="margin-top:5px">確認匯入</button>
           <div style="font-size:10px;color:var(--danger);margin-top:3px">⚠️ 匯入會覆蓋所有商品分類資料</div>
         <hr class="div">
+        <div class="adm-form-title">🎨 設計樣式</div>
+        <div id="designPanel">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.7">即時預覽，存檔後點「☁️ 同步」讓所有裝置套用。</div>
+          <div style="font-weight:700;font-size:11px;color:var(--adk);margin-bottom:7px">🌈 整體顏色</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div class="form-g"><label class="f-lbl">背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_bg" oninput="saveDesign('bg',this.value);id('d_bg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_bg_t" placeholder="#FAF8F5" oninput="saveDesign('bg',this.value);id('d_bg').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">主文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_txt" oninput="saveDesign('txt',this.value);id('d_txt_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_txt_t" placeholder="#2A2420" oninput="saveDesign('txt',this.value);id('d_txt').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">主題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_accent" oninput="saveDesign('accent',this.value);id('d_accent_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_accent_t" placeholder="#C4A882" oninput="saveDesign('accent',this.value);id('d_accent').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">深主題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_adk" oninput="saveDesign('adk',this.value);id('d_adk_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_adk_t" placeholder="#9A7955" oninput="saveDesign('adk',this.value);id('d_adk').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">次要文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_muted" oninput="saveDesign('muted',this.value);id('d_muted_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_muted_t" placeholder="#8C7B6E" oninput="saveDesign('muted',this.value);id('d_muted').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">框線色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_border" oninput="saveDesign('border',this.value);id('d_border_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_border_t" placeholder="#E8E2DC" oninput="saveDesign('border',this.value);id('d_border').value=this.value" style="flex:1;font-size:11px"></div></div>
+          </div>
+          <div style="font-weight:700;font-size:11px;color:var(--adk);margin-bottom:7px">🎠 輪播圖文字</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div class="form-g"><label class="f-lbl">標題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTitle" oninput="saveDesign('carTitle',this.value);id('d_carTitle_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTitle_t" placeholder="#2A2420" oninput="saveDesign('carTitle',this.value);id('d_carTitle').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">副標題色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carSub" oninput="saveDesign('carSub',this.value);id('d_carSub_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carSub_t" placeholder="#8C7B6E" oninput="saveDesign('carSub',this.value);id('d_carSub').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">標籤背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTagBg" oninput="saveDesign('carTagBg',this.value);id('d_carTagBg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTagBg_t" placeholder="#C4A882" oninput="saveDesign('carTagBg',this.value);id('d_carTagBg').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">標籤文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carTagColor" oninput="saveDesign('carTagColor',this.value);id('d_carTagColor_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carTagColor_t" placeholder="#ffffff" oninput="saveDesign('carTagColor',this.value);id('d_carTagColor').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">按鈕背景色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carBtnBg" oninput="saveDesign('carBtnBg',this.value);id('d_carBtnBg_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carBtnBg_t" placeholder="#C4A882" oninput="saveDesign('carBtnBg',this.value);id('d_carBtnBg').value=this.value" style="flex:1;font-size:11px"></div></div>
+            <div class="form-g"><label class="f-lbl">按鈕文字色</label><div style="display:flex;gap:5px;align-items:center"><input type="color" id="d_carBtnColor" oninput="saveDesign('carBtnColor',this.value);id('d_carBtnColor_t').value=this.value" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;padding:2px;cursor:pointer"><input class="f-inp" id="d_carBtnColor_t" placeholder="#ffffff" oninput="saveDesign('carBtnColor',this.value);id('d_carBtnColor').value=this.value" style="flex:1;font-size:11px"></div></div>
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <button class="adm-save" onclick="syncDesign()">☁️ 同步到所有裝置</button>
+            <button class="bsm b-del" style="padding:9px 13px;font-size:12px" onclick="resetDesign()">還原預設</button>
+          </div>
+        </div>
+        <hr class="div">
         <div class="adm-form-title">🔗 Google Sheets 設定</div>
         <div style="background:#e8f0fe;border:1px solid #c5ddf9;border-radius:var(--rs);padding:11px;margin-bottom:10px;font-size:11px;color:#2a5080;line-height:1.8">
           商品資料同步到 Google 試算表，所有人開網頁都看得到你改的內容。<br>
@@ -831,7 +863,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
 // ║  請將下方網址換成你的 Apps Script 部署網址            ║
 // ╚══════════════════════════════════════════════════════╝
 var GS_URL = 'https://script.google.com/macros/s/AKfycbxP-bSORGbPokUZx20cI4Hd3UvQONcffJyZ_e-OE3Wy3XlX-rSkGyRXq5O9Wu9quxLqKg/exec';
-var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders','hailey_users'];
+var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders','hailey_users','hailey_design'];
 
 // ── GS 核心 API ──
 function gsGet(key, cb) {
@@ -1043,6 +1075,10 @@ function loadFB() {
       coupons = data.hailey_coupons;
       localStorage.setItem('hailey_coupons', JSON.stringify(coupons));
     }
+    if(data.hailey_design && typeof data.hailey_design==='object'){
+      localStorage.setItem('hailey_design',JSON.stringify(data.hailey_design));
+      applyDesign();
+    }
     if(data.hailey_logo && typeof data.hailey_logo === 'string'){
       localStorage.setItem('hailey_logo', data.hailey_logo);
     }
@@ -1154,8 +1190,8 @@ function buildCatBars(){
         hasSp=true;
         var btn=document.createElement('button');
         var label=(c.id==='event'&&c.evLabel)?c.evLabel:c.name;
-        var cls='scat-btn '+(c.spType||'')+'-s'+(c.id===curCat?' on':'');
-        btn.className=cls; btn.textContent=label;
+        btn.className='scat-btn '+(c.spType||'')+'-s'+(c.id===curCat?' on':'');
+        btn.textContent=label;
         btn.onclick=(function(cid){ return function(){ selCat(cid); }; })(c.id);
         sb.appendChild(btn);
       }
@@ -1164,6 +1200,27 @@ function buildCatBars(){
       btn.className='citem'+(c.id===curCat?' on':'');
       btn.textContent=c.name;
       btn.onclick=(function(cid){ return function(){ selCat(cid); }; })(c.id);
+      // 拖拉排序
+      btn.draggable=true;
+      btn.dataset.catid=c.id;
+      btn.addEventListener('dragstart',function(e){ e.dataTransfer.setData('text/plain',c.id); btn.classList.add('dragging'); });
+      btn.addEventListener('dragend',function(){ btn.classList.remove('dragging'); document.querySelectorAll('.citem').forEach(function(b){ b.classList.remove('drag-over'); }); });
+      btn.addEventListener('dragover',function(e){ e.preventDefault(); btn.classList.add('drag-over'); });
+      btn.addEventListener('dragleave',function(){ btn.classList.remove('drag-over'); });
+      btn.addEventListener('drop',function(e){
+        e.preventDefault();
+        var fromId=e.dataTransfer.getData('text/plain');
+        var toId=c.id;
+        if(fromId===toId) return;
+        var fi=cats.findIndex(function(x){ return x.id===fromId; });
+        var ti=cats.findIndex(function(x){ return x.id===toId; });
+        if(fi<0||ti<0) return;
+        var moved=cats.splice(fi,1)[0];
+        cats.splice(ti,0,moved);
+        LS.set('hailey_cats',cats);
+        buildCatBars();
+        if(id('admCatList')) renderAdmCats();
+      });
       sc.appendChild(btn);
     }
   });
@@ -1181,6 +1238,12 @@ function buildSubBar(){
   var vsubs=cat?(cat.subs||[]).filter(function(s){ return !(cat.hidSubs||[]).includes(s); }):[];
   if(vsubs.length){
     bar.className='sub-bar vis'; bar.innerHTML='';
+    // 「全部」chip
+    var allChip=document.createElement('button');
+    allChip.className='sub-chip'+(curSub===''?' on':'');
+    allChip.textContent='全部';
+    allChip.onclick=function(){ selSub(''); };
+    bar.appendChild(allChip);
     vsubs.forEach(function(s){
       var chip=document.createElement('button');
       chip.className='sub-chip'+(s===curSub?' on':'');
@@ -1190,6 +1253,7 @@ function buildSubBar(){
     });
   } else { bar.className='sub-bar'; bar.innerHTML=''; }
 }
+
 function selSub(s){ curSub=s; buildSubBar(); renderProds(); }
 
 // ╔══════════════════════════════════════════════════════╗
@@ -1941,6 +2005,7 @@ function loadSettings(){
   id('sLogo').value=localStorage.getItem('hailey_logo')||'';
   id('sBank').value=payInfo.bank||''; id('sAcct').value=payInfo.acct||'';
   var gsInp=id('gsUrl'); if(gsInp) gsInp.value=GS_URL||'';
+  loadDesignAdmin();
   var lp=id('logoPreview'); if(lp){ var l=localStorage.getItem('hailey_logo'); lp.innerHTML=l?('<img src="'+esc(l)+'" style="height:44px;border-radius:4px" onerror="this.style.display=\'none\'">'):'' ; }
 }
 function saveLogo(){
@@ -2459,6 +2524,41 @@ function loadGsSettings(){
 // ╔══════════════════════════════════════════════════════╗
 // ║  INIT                                                ║
 // ╚══════════════════════════════════════════════════════╝
+function loadDesignAdmin(){
+  var d=LS.get('hailey_design',{});
+  var fields={bg:'#FAF8F5',txt:'#2A2420',accent:'#C4A882',adk:'#9A7955',muted:'#8C7B6E',border:'#E8E2DC',
+    carTitle:'#2A2420',carSub:'#8C7B6E',carTagBg:'#C4A882',carTagColor:'#ffffff',carBtnBg:'#C4A882',carBtnColor:'#ffffff'};
+  Object.keys(fields).forEach(function(k){
+    var v=d[k]||fields[k];
+    var pick=id('d_'+k); if(pick) pick.value=v;
+    var txt=id('d_'+k+'_t'); if(txt) txt.value=v;
+  });
+}
+function syncDesign(){
+  var d=LS.get('hailey_design',{});
+  gsSet('hailey_design',d);
+  toast('設計已同步到所有裝置 ✅');
+}
+function applyDesign(){
+  var d=LS.get('hailey_design',{});
+  var root=document.documentElement.style;
+  var map={bg:'--bg',txt:'--txt',accent:'--accent',adk:'--adk',alt:'--alt',muted:'--muted',border:'--border',
+    carTitle:'--car-title-color',carSub:'--car-sub-color',carTagBg:'--car-tag-bg',
+    carTagColor:'--car-tag-color',carBtnBg:'--car-btn-bg',carBtnColor:'--car-btn-color'};
+  Object.keys(map).forEach(function(k){ if(d[k]) root.setProperty(map[k],d[k]); });
+}
+function saveDesign(key,val){
+  var d=LS.get('hailey_design',{});
+  d[key]=val;
+  localStorage.setItem('hailey_design',JSON.stringify(d));
+  applyDesign();
+}
+function resetDesign(){
+  localStorage.removeItem('hailey_design');
+  document.documentElement.removeAttribute('style');
+  toast('已還原預設設計 ✅');
+  loadDesignAdmin();
+}
 function init(){
   // Restore GS URL from localStorage
   // GS_URL 讀取順序：1.程式碼內建值 2.meta tag 3.localStorage
