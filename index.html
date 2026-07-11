@@ -833,28 +833,33 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0}
 var GS_URL = 'https://script.google.com/macros/s/AKfycbxP-bSORGbPokUZx20cI4Hd3UvQONcffJyZ_e-OE3Wy3XlX-rSkGyRXq5O9Wu9quxLqKg/exec';
 var GS_KEYS = ['hailey_cats','hailey_prods','hailey_carousel','hailey_about','hailey_pay','hailey_coupons','hailey_logo','hailey_orders','hailey_users'];
 
+// ── GS 核心 API ──
 function gsGet(key, cb) {
   if(!GS_URL){ cb(null, null); return; }
-  fetch(GS_URL + '?key=' + encodeURIComponent(key), {
-    method: 'GET',
-    redirect: 'follow'
-  })
+  // 加上 timestamp 防止快取
+  var url = GS_URL + '?key=' + encodeURIComponent(key) + '&t=' + Date.now();
+  fetch(url, { method:'GET', redirect:'follow', cache:'no-store' })
     .then(function(r){ return r.text(); })
     .then(function(txt){
-      try{ var d=JSON.parse(txt); cb(null, d.data!==undefined?d.data:null); }
-      catch(e){ cb(new Error('JSON parse fail: '+txt.slice(0,100))); }
+      try{
+        var d = JSON.parse(txt);
+        cb(null, d.data !== undefined ? d.data : null);
+      } catch(e){ cb(new Error('解析失敗: ' + txt.slice(0,80))); }
     })
     .catch(function(e){ cb(e); });
 }
 function gsSet(key, val) {
   if(!GS_URL) return;
+  var body = key === 'hailey_users' ? safeUsers(val) : val;
   fetch(GS_URL, {
     method: 'POST',
     redirect: 'follow',
-    headers: {'Content-Type': 'text/plain'},
-    body: JSON.stringify({key: key, value: val})
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ key: key, value: body })
   }).catch(function(){});
 }
+// LS.set 同時存本地 + GS
+// （users 存 GS 時自動移除明文密碼，已在 gsSet 裡處理）
 function showSync(type, msg) {
   var el=id('syncBar'), dot=id('syncDot'), txt=id('syncTxt');
   if(!el) return;
@@ -992,63 +997,87 @@ var srchQ    = '';
 // ║  FIREBASE LOAD                                       ║
 // ╚══════════════════════════════════════════════════════╝
 function loadFB() {
-  if(!GS_URL){ showSync('err','請先設定 Apps Script 網址'); return; }
+  if(!GS_URL){ showSync('err','未設定同步網址'); return; }
   showSync('spin','同步中…');
   gsGet('all', function(err, data) {
-    if(err){ showSync('err','載入失敗，使用本地資料'); return; }
+    if(err){
+      showSync('err','同步失敗，顯示本地快取');
+      buildCar(); buildCatBars(); renderProds(); renderAbout();
+      return;
+    }
     if(!data){
-      // 第一次使用：把本地資料存到試算表
-      var logoVal=localStorage.getItem('hailey_logo')||'';
-      GS_KEYS.forEach(function(k){
-        var map={hailey_cats:cats,hailey_prods:prods,hailey_carousel:carData,hailey_about:about,hailey_pay:payInfo,hailey_coupons:coupons,hailey_logo:logoVal,hailey_orders:orders,hailey_users:safeUsers(users)};
-        if(map[k]) gsSet(k, map[k]);
-      });
-      showSync('ok','初始化完成 ✅'); return;
+      // 第一次：把本地資料推到 GS
+      var logoVal = localStorage.getItem('hailey_logo') || '';
+      var initMap = {
+        hailey_cats: cats, hailey_prods: prods, hailey_carousel: carData,
+        hailey_about: about, hailey_pay: payInfo, hailey_coupons: coupons,
+        hailey_logo: logoVal, hailey_orders: orders, hailey_users: users
+      };
+      GS_KEYS.forEach(function(k){ if(initMap[k]) gsSet(k, initMap[k]); });
+      showSync('ok','初始化完成 ✅');
+      buildCar(); buildCatBars(); renderProds(); renderAbout();
+      return;
     }
-    if(data.hailey_cats){ cats=data.hailey_cats; localStorage.setItem('hailey_cats',JSON.stringify(cats)); }
-    if(data.hailey_prods){ prods=data.hailey_prods; localStorage.setItem('hailey_prods',JSON.stringify(prods)); }
-    if(data.hailey_carousel){ carData=data.hailey_carousel; localStorage.setItem('hailey_carousel',JSON.stringify(carData)); }
-    if(data.hailey_about){ about=data.hailey_about; localStorage.setItem('hailey_about',JSON.stringify(about)); }
-    if(data.hailey_pay){ payInfo=data.hailey_pay; localStorage.setItem('hailey_pay',JSON.stringify(payInfo)); }
-    if(data.hailey_coupons){ coupons=data.hailey_coupons; localStorage.setItem('hailey_coupons',JSON.stringify(coupons)); }
-    if(data.hailey_logo&&typeof data.hailey_logo==='string'){ localStorage.setItem('hailey_logo',data.hailey_logo); }
-    if(data.hailey_orders&&Array.isArray(data.hailey_orders)){
-      orders=data.hailey_orders; localStorage.setItem('hailey_orders',JSON.stringify(orders));
+    // ── GS 資料覆蓋本地（GS 永遠是最新的）──
+    if(data.hailey_cats && Array.isArray(data.hailey_cats)){
+      cats = data.hailey_cats;
+      localStorage.setItem('hailey_cats', JSON.stringify(cats));
     }
-    if(data.hailey_users&&Array.isArray(data.hailey_users)){
-      var gsUsers=data.hailey_users;
-      // 管理員永遠用本地的
-      var localAdmin=users.find(function(u){ return u.admin; });
-      // 合併：GS 有的會員補充到本地，本地有的保留密碼
-      gsUsers.forEach(function(gsU){
-        if(gsU.admin) return;
-        var localIdx=users.findIndex(function(u){ return u.email===gsU.email; });
-        if(localIdx>-1){
-          // 本地已有：用 GS 更新資料，但保留本地密碼
-          var keepPw=users[localIdx].pw;
-          var keepPwh=users[localIdx].pwh;
-          users[localIdx]=Object.assign({},gsU,{pw:keepPw,pwh:keepPwh});
-        } else {
-          // 本地沒有（換裝置）：從 GS 加入，保留 pwh 供驗證
-          users.push(gsU);
-        }
-      });
-      if(localAdmin){
-        var ai=users.findIndex(function(u){ return u.admin; });
-        if(ai>-1) users[ai]=localAdmin; else users.unshift(localAdmin);
-      }
-      localStorage.setItem('hailey_users',JSON.stringify(users));
+    if(data.hailey_prods && Array.isArray(data.hailey_prods)){
+      prods = data.hailey_prods;
+      localStorage.setItem('hailey_prods', JSON.stringify(prods));
     }
-    showSync('ok','已同步 ✅');
+    if(data.hailey_carousel && Array.isArray(data.hailey_carousel)){
+      carData = data.hailey_carousel;
+      localStorage.setItem('hailey_carousel', JSON.stringify(carData));
+    }
+    if(data.hailey_about && data.hailey_about.title){
+      about = data.hailey_about;
+      localStorage.setItem('hailey_about', JSON.stringify(about));
+    }
+    if(data.hailey_pay && data.hailey_pay.bank){
+      payInfo = data.hailey_pay;
+      localStorage.setItem('hailey_pay', JSON.stringify(payInfo));
+    }
+    if(data.hailey_coupons && Array.isArray(data.hailey_coupons)){
+      coupons = data.hailey_coupons;
+      localStorage.setItem('hailey_coupons', JSON.stringify(coupons));
+    }
+    if(data.hailey_logo && typeof data.hailey_logo === 'string'){
+      localStorage.setItem('hailey_logo', data.hailey_logo);
+    }
+    if(data.hailey_orders && Array.isArray(data.hailey_orders)){
+      orders = data.hailey_orders;
+      localStorage.setItem('hailey_orders', JSON.stringify(orders));
+    }
+    if(data.hailey_users && Array.isArray(data.hailey_users)){
+      mergeUsers(data.hailey_users);
+    }
+    showSync('ok', '已同步 ✅');
+    // 重新渲染所有頁面
     buildCar(); buildCatBars(); renderProds(); renderAbout();
-    var pbi=id('payBankInfo'); if(pbi) pbi.innerHTML='銀行代號：'+payInfo.bank+'<br>帳號：'+payInfo.acct;
-    // 若後台已開啟，重新渲染訂單和會員
-    if(id('admOv')&&id('admOv').classList.contains('open')){
-      renderAdmOrds(); renderAdmMems(); renderAdmProds();
+    var pbi = id('payBankInfo');
+    if(pbi) pbi.innerHTML = '銀行代號：' + esc(payInfo.bank) + '<br>帳號：' + esc(payInfo.acct);
+    if(curPage === 'member') renderMem();
+    if(id('admOv') && id('admOv').classList.contains('open')){
+      renderAdmProds(); renderAdmOrds(); renderAdmMems();
     }
-    // 若會員頁面已開啟，重新渲染訂單記錄
-    if(curPage==='member') renderMem();
   });
+}
+// ── 合併 users：GS 的非管理員 user 全部接受，保留本地密碼 ──
+function mergeUsers(gsUsers) {
+  var localAdmin = users.find(function(u){ return u.admin || u.email === 'admin@hailey.com'; });
+  // 全部用 GS 的，但補上本地的密碼
+  var merged = gsUsers.filter(function(u){ return !u.admin; }).map(function(gsU){
+    var local = users.find(function(u){ return u.email === gsU.email; });
+    if(local && (local.pw || local.pwh)){
+      return Object.assign({}, gsU, { pw: local.pw, pwh: local.pwh });
+    }
+    return gsU; // 新裝置，沒有本地密碼，用 pwh 驗證
+  });
+  if(localAdmin) merged.unshift(localAdmin);
+  users = merged;
+  localStorage.setItem('hailey_users', JSON.stringify(users));
 }
 function pushToFB() {
   if(!GS_URL){ toast('請先設定 Apps Script 網址'); return; }
@@ -1507,7 +1536,7 @@ function renderAbout(){
 // ║  MEMBER                                              ║
 // ╚══════════════════════════════════════════════════════╝
 function renderMem(){
-  var pr=id('memPrompt'),ct=id('memContent');
+  var pr=id('memPrompt'), ct=id('memContent');
   if(!me){ if(pr)pr.style.display='block'; if(ct)ct.style.display='none'; return; }
   if(pr)pr.style.display='none'; if(ct)ct.style.display='block';
   id('mName').value=me.name||''; id('mGender').value=me.gender||'';
@@ -1517,19 +1546,17 @@ function renderMem(){
   id('mFace').checked=s.face||false; id('m711').checked=s.s711||false;
   id('m711s').value=s.s711s||''; id('mFam').checked=s.fam||false; id('mFams').value=s.fams||'';
   togStore(); renderMyCps();
-  // 每次進會員中心都從 GS 重新抓最新訂單
-  if(GS_URL){
-    var ordEl=id('myOrders');
-    if(ordEl) ordEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted)">載入中…</div>';
-    gsGet('hailey_orders', function(err, data){
-      if(!err && data && Array.isArray(data)){
-        orders=data; localStorage.setItem('hailey_orders',JSON.stringify(orders));
-      }
-      renderMyOrds();
-    });
-  } else {
+  // 從 GS 抓最新訂單（顯示載入中）
+  var ordEl=id('myOrders');
+  if(ordEl) ordEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted)">⏳ 載入訂單中…</div>';
+  if(!GS_URL){ renderMyOrds(); return; }
+  gsGet('hailey_orders', function(err, data){
+    if(!err && data && Array.isArray(data)){
+      orders = data;
+      localStorage.setItem('hailey_orders', JSON.stringify(orders));
+    }
     renderMyOrds();
-  }
+  });
 }
 function memTab(tab){
   document.querySelectorAll('.mtab').forEach(function(b){ b.classList.remove('on'); });
@@ -1694,32 +1721,26 @@ function openAdm(){
   if(!me||(!me.admin&&me.email!=='admin@hailey.com')){ toast('僅限管理員'); return; }
   id('admOv').classList.add('open');
   renderAdmProds(); renderAdmCar(); renderAdmCats(); loadAboutAdm(); loadSettings(); renderAdmCps();
-  // 從 GS 抓最新訂單和會員再渲染
-  if(GS_URL){
-    var ol=id('admOrdList'); if(ol) ol.innerHTML='<div style="color:var(--muted);padding:12px">載入中…</div>';
-    var ml=id('admMemList'); if(ml) ml.innerHTML='<div style="color:var(--muted);padding:12px">載入中…</div>';
-    gsGet('hailey_orders', function(err, data){
-      if(!err && data && Array.isArray(data)){
-        orders=data; localStorage.setItem('hailey_orders',JSON.stringify(orders));
-      }
-      renderAdmOrds();
-    });
-    gsGet('hailey_users', function(err, data){
-      if(!err && data && Array.isArray(data)){
-        // 合併：保留本地密碼
-        data.forEach(function(gsU){
-          if(gsU.admin) return;
-          var li=users.findIndex(function(u){ return u.email===gsU.email; });
-          if(li>-1){ var kp=users[li].pw; var kph=users[li].pwh; users[li]=Object.assign({},gsU,{pw:kp,pwh:kph}); }
-          else users.push(gsU);
-        });
-        localStorage.setItem('hailey_users',JSON.stringify(users));
-      }
-      renderAdmMems();
-    });
-  } else {
-    renderAdmOrds(); renderAdmMems();
-  }
+  // 每次開後台都從 GS 抓最新資料
+  var ol=id('admOrdList'); if(ol) ol.innerHTML='<div style="color:var(--muted);padding:12px;text-align:center">⏳ 載入中…</div>';
+  var ml=id('admMemList'); if(ml) ml.innerHTML='<div style="color:var(--muted);padding:12px;text-align:center">⏳ 載入中…</div>';
+  if(!GS_URL){ renderAdmOrds(); renderAdmMems(); return; }
+  // 同時抓訂單和會員（平行請求）
+  var done = 0;
+  function checkDone(){ done++; if(done>=2){ toast('後台資料已更新 ✅'); } }
+  gsGet('hailey_orders', function(err, data){
+    if(!err && data && Array.isArray(data)){
+      orders = data;
+      localStorage.setItem('hailey_orders', JSON.stringify(orders));
+    }
+    renderAdmOrds(); checkDone();
+  });
+  gsGet('hailey_users', function(err, data){
+    if(!err && data && Array.isArray(data)){
+      mergeUsers(data);
+    }
+    renderAdmMems(); checkDone();
+  });
 }
 function closeAdm(){ id('admOv').classList.remove('open'); document.body.style.overflow=''; }
 function admTab(tab){
